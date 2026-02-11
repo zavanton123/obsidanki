@@ -140,6 +140,16 @@ abstract class AbstractFile {
     }
 
     setup_global_tags() {
+        const prop = this.data.tagsFrontmatterProperty
+        const frontmatterTags = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
+        if (frontmatterTags != null) {
+            if (Array.isArray(frontmatterTags)) {
+                this.global_tags = frontmatterTags.map((t: unknown) => String(t)).join(TAG_SEP)
+            } else {
+                this.global_tags = String(frontmatterTags)
+            }
+            return
+        }
         const result = this.file.match(this.data.TAG_REGEXP)
         this.global_tags = result ? result[1] : ""
     }

@@ -159,6 +159,9 @@ export class SettingsTab extends PluginSettingTab {
 		if (!plugin.settings["Syntax"].hasOwnProperty("Deck Frontmatter Property")) {
 			plugin.settings["Syntax"]["Deck Frontmatter Property"] = "anki-deck"
 		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("Tags Frontmatter Property")) {
+			plugin.settings["Syntax"]["Tags Frontmatter Property"] = "anki-tags"
+		}
 		let syntax_settings = containerEl.createEl('h3', {text: 'Syntax Settings'})
 		for (let key of Object.keys(plugin.settings["Syntax"])) {
 			new Setting(syntax_settings)

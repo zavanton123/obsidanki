@@ -15,6 +15,7 @@ export interface PluginSettings {
 		"Target Deck Line": string,
 		"Deck Frontmatter Property": string,
 		"File Tags Line": string,
+		"Tags Frontmatter Property": string,
 		"Delete Note Line": string,
 		"Frozen Fields Line": string
 	},
@@ -56,6 +57,7 @@ export interface FileData {
 	add_context: boolean
 	add_obs_tags: boolean
 	deckFrontmatterProperty: string
+	tagsFrontmatterProperty: string
 }
 
 export interface ParsedSettings extends FileData {

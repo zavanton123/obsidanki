@@ -29,6 +29,7 @@ export default class MyPlugin extends Plugin {
 				"Target Deck Line": "TARGET DECK",
 				"Deck Frontmatter Property": "anki-deck",
 				"File Tags Line": "FILE TAGS",
+				"Tags Frontmatter Property": "anki-tags",
 				"Delete Note Line": "DELETE",
 				"Frozen Fields Line": "FROZEN"
 			},
