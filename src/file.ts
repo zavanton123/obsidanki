@@ -16,15 +16,15 @@ const FRONTMATTER_REGEXP = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
 /** Lines that are only an ID (so we don't remove inline note lines that contain "ID: 123" in the middle). */
 const ID_ONLY_LINE_REGEXP = /^\s*(?:<!--)?ID: \d+(?:-->)?\s*$/
 
-function setFrontmatterAnkiIds(content: string, ids: number[], propName: string): string {
+function setFrontmatterAnkiIds(content: string, id: number, propName: string): string {
     const key = propName + ":"
-    const newLine = key + " [" + ids.join(", ") + "]"
+    const newLine = key + " " + id
     const match = content.match(FRONTMATTER_REGEXP)
     if (match) {
         const rest = content.slice(match[0].length)
         const fm = match[1]
         const keyRegex = new RegExp("^" + propName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ":.*$", "m")
-        const newFm = keyRegex.test(fm) ? fm.replace(keyRegex, newLine) : fm.trimEnd() + "\n" + newLine + "\n"
+        const newFm = keyRegex.test(fm) ? fm.replace(keyRegex, newLine) : fm.trimEnd() + "\n" + newLine
         return "---\n" + newFm + "\n---\n" + rest
     }
     return "---\n" + newLine + "\n---\n" + content
@@ -511,7 +511,7 @@ export class AllFile extends AbstractFile {
         if (ids.length === 0) return
         this.file = setFrontmatterAnkiIds(
             removeIdLinesFromBody(this.file, this.data.deleteNoteLineSyntax),
-            ids,
+            ids[0],
             this.data.idFrontmatterProperty
         )
     }
