@@ -7,6 +7,7 @@ install:
 	rm -rf obsidanki
 	mkdir -p obsidanki
 	cp main.js manifest.json styles.css README.md obsidanki
+	zip -r $(VERSION)-obsidanki.zip obsidanki
 	rm -rf $(PLUGINS_DIR)/obsidanki
 	mv obsidanki $(PLUGINS_DIR)/
 
