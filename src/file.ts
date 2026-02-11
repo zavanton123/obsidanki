@@ -129,6 +129,12 @@ abstract class AbstractFile {
     }
 
     setup_target_deck() {
+        const prop = this.data.deckFrontmatterProperty
+        const frontmatterDeck = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
+        if (frontmatterDeck != null && frontmatterDeck !== "") {
+            this.target_deck = String(frontmatterDeck)
+            return
+        }
         const result = this.file.match(this.data.DECK_REGEXP)
         this.target_deck = result ? result[1] : this.data.template["deckName"]
     }

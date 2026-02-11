@@ -27,6 +27,7 @@ export default class MyPlugin extends Plugin {
 				"Begin Inline Note": "STARTI",
 				"End Inline Note": "ENDI",
 				"Target Deck Line": "TARGET DECK",
+				"Deck Frontmatter Property": "anki-deck",
 				"File Tags Line": "FILE TAGS",
 				"Delete Note Line": "DELETE",
 				"Frozen Fields Line": "FROZEN"

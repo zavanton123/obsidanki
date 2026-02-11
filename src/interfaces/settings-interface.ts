@@ -13,6 +13,7 @@ export interface PluginSettings {
 		"Begin Inline Note": string,
 		"End Inline Note": string,
 		"Target Deck Line": string,
+		"Deck Frontmatter Property": string,
 		"File Tags Line": string,
 		"Delete Note Line": string,
 		"Frozen Fields Line": string
@@ -21,7 +22,7 @@ export interface PluginSettings {
 		"Scan Directory": string,
 		"Tag": string,
 		"Deck": string,
-		"Scheduling Interval": number
+		"Scheduling Interval": number,
 		"Add File Link": boolean,
 		"Add Context": boolean,
 		"CurlyCloze": boolean,
@@ -54,6 +55,7 @@ export interface FileData {
 	comment: boolean
 	add_context: boolean
 	add_obs_tags: boolean
+	deckFrontmatterProperty: string
 }
 
 export interface ParsedSettings extends FileData {

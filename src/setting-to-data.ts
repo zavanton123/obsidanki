@@ -34,6 +34,7 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
     result.NOTE_REGEXP = new RegExp(String.raw`^` + escapeRegex(settings.Syntax["Begin Note"]) + String.raw`\n([\s\S]*?\n)` + escapeRegex(settings.Syntax["End Note"]), "gm")
     result.INLINE_REGEXP = new RegExp(escapeRegex(settings.Syntax["Begin Inline Note"]) + String.raw`(.*?)` + escapeRegex(settings.Syntax["End Inline Note"]), "g")
     result.EMPTY_REGEXP = new RegExp(escapeRegex(settings.Syntax["Delete Note Line"]) + ID_REGEXP_STR, "g")
+    result.deckFrontmatterProperty = settings.Syntax["Deck Frontmatter Property"] ?? "anki-deck"
 
     //Just a simple transfer
     result.curly_cloze = settings.Defaults.CurlyCloze
