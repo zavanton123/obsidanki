@@ -391,11 +391,15 @@ export class AllFile extends AbstractFile {
         return Number.isNaN(n) ? null : [n]
     }
 
-    /** Create one Basic card from the whole file: front = note name, back = body without frontmatter and H1. */
+    /** Create one Basic card from the whole file: front = anki-front or note name, back = body without frontmatter and H1. */
     scanAsBasicCard() {
         const BASIC = "Basic"
         const fieldNames: string[] = this.data.fields_dict[BASIC] ?? ["Front", "Back"]
-        const noteName = this.getNoteNameFromPath()
+        const frontProp = this.data.frontFrontmatterProperty
+        const frontFromFm = frontProp && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[frontProp]
+        const frontText = (frontFromFm != null && String(frontFromFm).trim() !== "")
+            ? String(frontFromFm).trim()
+            : this.getNoteNameFromPath()
         const backRaw = this.getBodyWithoutFrontmatterAndH1()
         const backFormatted = this.formatter.format(backRaw, this.data.curly_cloze, this.data.highlights_to_cloze)
 
@@ -403,7 +407,7 @@ export class AllFile extends AbstractFile {
         template.modelName = BASIC
         template.fields = {} as Record<string, string>
         for (let i = 0; i < fieldNames.length; i++) {
-            template.fields[fieldNames[i]] = i === 0 ? noteName : i === 1 ? backFormatted : ""
+            template.fields[fieldNames[i]] = i === 0 ? frontText : i === 1 ? backFormatted : ""
         }
         template.deckName = this.target_deck
         template.tags = [...(this.data.template.tags ?? [])]

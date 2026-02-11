@@ -28,6 +28,7 @@ export default class MyPlugin extends Plugin {
 				"End Inline Note": "ENDI",
 				"Deck Frontmatter Property": "anki-deck",
 				"Tags Frontmatter Property": "anki-tags",
+				"Front Frontmatter Property": "anki-front",
 				"ID Frontmatter Property": "anki-id",
 				"ID Delete Postfix": "-delete",
 				"Frozen Fields Line": "FROZEN"

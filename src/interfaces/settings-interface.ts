@@ -14,6 +14,7 @@ export interface PluginSettings {
 		"End Inline Note": string,
 		"Deck Frontmatter Property": string,
 		"Tags Frontmatter Property": string,
+		"Front Frontmatter Property": string,
 		"ID Frontmatter Property": string,
 		"ID Delete Postfix": string,
 		"Frozen Fields Line": string
@@ -52,6 +53,7 @@ export interface FileData {
 	add_obs_tags: boolean
 	deckFrontmatterProperty: string
 	tagsFrontmatterProperty: string
+	frontFrontmatterProperty: string
 	idFrontmatterProperty: string
 	/** Postfix on anki-id value to mark note for deletion (e.g. "-delete"). */
 	idDeletePostfix: string

@@ -165,6 +165,9 @@ export class SettingsTab extends PluginSettingTab {
 		if (!plugin.settings["Syntax"].hasOwnProperty("Tags Frontmatter Property")) {
 			plugin.settings["Syntax"]["Tags Frontmatter Property"] = "anki-tags"
 		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("Front Frontmatter Property")) {
+			plugin.settings["Syntax"]["Front Frontmatter Property"] = "anki-front"
+		}
 		if (!plugin.settings["Syntax"].hasOwnProperty("ID Frontmatter Property")) {
 			plugin.settings["Syntax"]["ID Frontmatter Property"] = "anki-id"
 		}
