@@ -12,6 +12,37 @@ import { CachedMetadata, HeadingCache } from 'obsidian'
 
 const double_regexp: RegExp = /(?:\r\n|\r|\n)((?:\r\n|\r|\n)(?:<!--)?ID: \d+)/g
 
+const FRONTMATTER_REGEXP = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
+/** Lines that are only an ID (so we don't remove inline note lines that contain "ID: 123" in the middle). */
+const ID_ONLY_LINE_REGEXP = /^\s*(?:<!--)?ID: \d+(?:-->)?\s*$/
+
+function setFrontmatterAnkiIds(content: string, ids: number[], propName: string): string {
+    const key = propName + ":"
+    const newLine = key + " [" + ids.join(", ") + "]"
+    const match = content.match(FRONTMATTER_REGEXP)
+    if (match) {
+        const rest = content.slice(match[0].length)
+        const fm = match[1]
+        const keyRegex = new RegExp("^" + propName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ":.*$", "m")
+        const newFm = keyRegex.test(fm) ? fm.replace(keyRegex, newLine) : fm.trimEnd() + "\n" + newLine + "\n"
+        return "---\n" + newFm + "\n---\n" + rest
+    }
+    return "---\n" + newLine + "\n---\n" + content
+}
+
+/** Remove ID-only lines from body. Preserve ID line when it immediately follows a line starting with preserveIdAfterLine (e.g. "DELETE"). */
+function removeIdLinesFromBody(content: string, preserveIdAfterLine?: string): string {
+    const lines = content.split(/\r?\n/)
+    const keep = preserveIdAfterLine ? preserveIdAfterLine.trim() : ""
+    return lines
+        .filter((line, i) => {
+            if (!ID_ONLY_LINE_REGEXP.test(line)) return true
+            if (keep && i > 0 && lines[i - 1].trimStart().startsWith(keep)) return true
+            return false
+        })
+        .join("\n")
+}
+
 function id_to_str(identifier:number, inline:boolean = false, comment:boolean = false): string {
     let result = "ID: " + identifier.toString()
     if (comment) {
@@ -88,6 +119,8 @@ abstract class AbstractFile {
     all_notes_to_add: AnkiConnectNote[]
 
     note_ids: Array<number | null>
+    /** Ordered list of note IDs (null for newly added, filled from note_ids after sync). Used for frontmatter anki-id. */
+    frontmatter_ids_ordered: (number | null)[]
     card_ids: number[]
     tags: string[]
 
@@ -101,6 +134,7 @@ abstract class AbstractFile {
         this.original_file = this.file
         this.file_cache = file_cache
         this.formatter = new FormatConverter(file_cache, this.data.vault_name)
+        this.frontmatter_ids_ordered = []
     }
 
     setup_frozen_fields_dict() {
@@ -312,18 +346,30 @@ export class AllFile extends AbstractFile {
         this.regex_id_indexes = []
         this.notes_to_edit = []
         this.notes_to_delete = []
+        this.frontmatter_ids_ordered = []
+    }
+
+    getFrontmatterIds(): number[] | null {
+        const prop = this.data.idFrontmatterProperty
+        const raw = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
+        if (raw == null) return null
+        if (Array.isArray(raw)) return raw.map((x: unknown) => Number(x)).filter((n) => !Number.isNaN(n))
+        const n = Number(raw)
+        return Number.isNaN(n) ? null : [n]
     }
 
     scanNotes() {
         for (let note_match of this.file.matchAll(this.data.NOTE_REGEXP)) {
             let [note, position]: [string, number] = [note_match[1], note_match.index + note_match[0].indexOf(note_match[1]) + note_match[1].length]
-            // That second thing essentially gets the index of the end of the first capture group.
+            const frontIds = this.getFrontmatterIds()
+            const optionalId = frontIds && this.frontmatter_ids_ordered.length < frontIds.length ? frontIds[this.frontmatter_ids_ordered.length] : undefined
             let parsed = new Note(
                 note,
                 this.data.fields_dict,
                 this.data.curly_cloze,
                 this.data.highlights_to_cloze,
-                this.formatter
+                this.formatter,
+                optionalId
             ).parse(
                 this.target_deck,
                 this.url,
@@ -349,19 +395,22 @@ export class AllFile extends AbstractFile {
             } else {
                 this.notes_to_edit.push(parsed)
             }
+            this.frontmatter_ids_ordered.push(parsed.identifier)
         }
     }
 
     scanInlineNotes() {
         for (let note_match of this.file.matchAll(this.data.INLINE_REGEXP)) {
             let [note, position]: [string, number] = [note_match[1], note_match.index + note_match[0].indexOf(note_match[1]) + note_match[1].length]
-            // That second thing essentially gets the index of the end of the first capture group.
+            const frontIds = this.getFrontmatterIds()
+            const optionalId = frontIds && this.frontmatter_ids_ordered.length < frontIds.length ? frontIds[this.frontmatter_ids_ordered.length] : undefined
             let parsed = new InlineNote(
                 note,
                 this.data.fields_dict,
                 this.data.curly_cloze,
                 this.data.highlights_to_cloze,
-                this.formatter
+                this.formatter,
+                optionalId
             ).parse(
                 this.target_deck,
                 this.url,
@@ -383,6 +432,7 @@ export class AllFile extends AbstractFile {
             } else {
                 this.notes_to_edit.push(parsed)
             }
+            this.frontmatter_ids_ordered.push(parsed.identifier)
         }
     }
 
@@ -397,9 +447,12 @@ export class AllFile extends AbstractFile {
                 let regexp: RegExp = new RegExp(regexp_str + tag_str + id_str, 'gm')
                 for (let match of findignore(regexp, this.file, this.ignore_spans)) {
                     this.ignore_spans.push([match.index, match.index + match[0].length])
+                    const frontIds = this.getFrontmatterIds()
+                    const optionalId = frontIds && this.frontmatter_ids_ordered.length < frontIds.length ? frontIds[this.frontmatter_ids_ordered.length] : undefined
                     const parsed: AnkiConnectNoteAndID = new RegexNote(
                         match, note_type, this.data.fields_dict,
-                        search_tags, search_id, this.data.curly_cloze, this.data.highlights_to_cloze, this.formatter
+                        search_tags, search_id, this.data.curly_cloze, this.data.highlights_to_cloze, this.formatter,
+                        optionalId
                     ).parse(
                         this.target_deck,
                         this.url,
@@ -417,6 +470,7 @@ export class AllFile extends AbstractFile {
                             console.warn("Note with id", parsed.identifier, " in file ", this.path, " does not exist in Anki!")
                         } else {
                             this.notes_to_edit.push(parsed)
+                            this.frontmatter_ids_ordered.push(parsed.identifier)
                         }
                     } else {
                         if (parsed.identifier == CLOZE_ERROR) {
@@ -427,6 +481,7 @@ export class AllFile extends AbstractFile {
                         parsed.note.tags.push(...this.global_tags.split(TAG_SEP))
                         this.regex_notes_to_add.push(parsed.note)
                         this.regex_id_indexes.push(match.index + match[0].length)
+                        this.frontmatter_ids_ordered.push(parsed.identifier)
                     }
                 }
             }
@@ -452,34 +507,12 @@ export class AllFile extends AbstractFile {
     }
 
     writeIDs() {
-        let normal_inserts: [number, string][] = []
-        this.id_indexes.forEach(
-            (id_position: number, index: number) => {
-                const identifier: number | null = this.note_ids[index]
-                if (identifier) {
-                    normal_inserts.push([id_position, id_to_str(identifier, false, this.data.comment)])
-                }
-            }
+        const ids = this.frontmatter_ids_ordered.filter((x): x is number => x != null)
+        if (ids.length === 0) return
+        this.file = setFrontmatterAnkiIds(
+            removeIdLinesFromBody(this.file, this.data.deleteNoteLineSyntax),
+            ids,
+            this.data.idFrontmatterProperty
         )
-        let inline_inserts: [number, string][] = []
-        this.inline_id_indexes.forEach(
-            (id_position: number, index: number) => {
-                const identifier: number | null = this.note_ids[index + this.notes_to_add.length] //Since regular then inline
-                if (identifier) {
-                    inline_inserts.push([id_position, id_to_str(identifier, true, this.data.comment)])
-                }
-            }
-        )
-        let regex_inserts: [number, string][] = []
-        this.regex_id_indexes.forEach(
-            (id_position: number, index: number) => {
-                const identifier: number | null = this.note_ids[index + this.notes_to_add.length + this.inline_notes_to_add.length] // Since regular then inline then regex
-                if (identifier) {
-                    regex_inserts.push([id_position, "\n" + id_to_str(identifier, false, this.data.comment)])
-                }
-            }
-        )
-        this.file = string_insert(this.file, normal_inserts.concat(inline_inserts).concat(regex_inserts))
-        this.fix_newline_ids()
     }
 }

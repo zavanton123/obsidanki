@@ -16,6 +16,7 @@ export interface PluginSettings {
 		"Deck Frontmatter Property": string,
 		"File Tags Line": string,
 		"Tags Frontmatter Property": string,
+		"ID Frontmatter Property": string,
 		"Delete Note Line": string,
 		"Frozen Fields Line": string
 	},
@@ -58,6 +59,9 @@ export interface FileData {
 	add_obs_tags: boolean
 	deckFrontmatterProperty: string
 	tagsFrontmatterProperty: string
+	idFrontmatterProperty: string
+	/** Raw "Delete Note Line" syntax (e.g. "DELETE") so we can preserve "DELETE\\nID: 123" when stripping ID lines. */
+	deleteNoteLineSyntax: string
 }
 
 export interface ParsedSettings extends FileData {

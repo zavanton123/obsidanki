@@ -49,13 +49,13 @@ abstract class AbstractNote {
 	highlights_to_cloze: boolean
 	no_note_type: boolean
 
-    constructor(note_text: string, fields_dict: FIELDS_DICT, curly_cloze: boolean, highlights_to_cloze: boolean, formatter: FormatConverter) {
+    constructor(note_text: string, fields_dict: FIELDS_DICT, curly_cloze: boolean, highlights_to_cloze: boolean, formatter: FormatConverter, optionalIdentifier?: number | null) {
         this.text = note_text.trim()
         this.current_field_num = 0
         this.delete = false
 		this.no_note_type = false
         this.split_text = this.getSplitText()
-        this.identifier = this.getIdentifier()
+        this.identifier = optionalIdentifier !== undefined && optionalIdentifier !== null ? optionalIdentifier : this.getIdentifier()
         this.tags = this.getTags()
         this.note_type = this.getNoteType()
 		if (!(fields_dict.hasOwnProperty(this.note_type))) {
@@ -254,11 +254,12 @@ export class RegexNote {
 			id: boolean,
 			curly_cloze: boolean,
 			highlights_to_cloze: boolean,
-			formatter: FormatConverter
+			formatter: FormatConverter,
+			optionalIdentifier?: number | null
 	) {
 		this.match = match
 		this.note_type = note_type
-		this.identifier = id ? parseInt(this.match.pop()) : null
+		this.identifier = optionalIdentifier !== undefined && optionalIdentifier !== null ? optionalIdentifier : (id ? parseInt(this.match.pop()) : null)
 		this.tags = tags ? this.match.pop().slice(TAG_PREFIX.length).split(TAG_SEP) : []
 		this.field_names = fields_dict[note_type]
 		this.curly_cloze = curly_cloze

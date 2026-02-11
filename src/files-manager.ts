@@ -268,6 +268,12 @@ export class FileManager {
                     file.note_ids.push(response.result)
                 }
             }
+            let noteIdIdx = 0
+            for (let k = 0; k < file.frontmatter_ids_ordered.length; k++) {
+                if (file.frontmatter_ids_ordered[k] === null && noteIdIdx < file.note_ids.length) {
+                    file.frontmatter_ids_ordered[k] = file.note_ids[noteIdIdx++]
+                }
+            }
         }
         for (let index in note_info_array_by_file) {
             let i: number = parseInt(index)
