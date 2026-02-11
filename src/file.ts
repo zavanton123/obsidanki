@@ -30,6 +30,18 @@ function setFrontmatterAnkiIds(content: string, id: number, propName: string): s
     return "---\n" + newLine + "\n---\n" + content
 }
 
+/** Remove a property line from frontmatter (e.g. anki-id). */
+function removeFrontmatterProperty(content: string, propName: string): string {
+    const match = content.match(FRONTMATTER_REGEXP)
+    if (!match) return content
+    const rest = content.slice(match[0].length)
+    const fm = match[1]
+    const keyRegex = new RegExp("^" + propName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ":.*$\\r?\\n?", "m")
+    const newFm = fm.replace(keyRegex, "").replace(/\n{2,}/g, "\n").trimEnd()
+    if (!newFm) return rest.trimStart() ? rest : content
+    return "---\n" + newFm + "\n---\n" + rest
+}
+
 /** Remove ID-only lines from body. Preserve ID line when it immediately follows a line starting with preserveIdAfterLine (e.g. "DELETE"). */
 function removeIdLinesFromBody(content: string, preserveIdAfterLine?: string): string {
     const lines = content.split(/\r?\n/)
@@ -121,6 +133,8 @@ abstract class AbstractFile {
     note_ids: Array<number | null>
     /** Ordered list of note IDs (null for newly added, filled from note_ids after sync). Used for frontmatter anki-id. */
     frontmatter_ids_ordered: (number | null)[]
+    /** True when frontmatter had anki-id with "-delete" suffix (so we remove anki-id on write if no other notes). */
+    hadDeleteMarkerInFrontmatter: boolean
     card_ids: number[]
     tags: string[]
 
@@ -135,6 +149,7 @@ abstract class AbstractFile {
         this.file_cache = file_cache
         this.formatter = new FormatConverter(file_cache, this.data.vault_name)
         this.frontmatter_ids_ordered = []
+        this.hadDeleteMarkerInFrontmatter = false
     }
 
     setup_frozen_fields_dict() {
@@ -197,6 +212,15 @@ abstract class AbstractFile {
     scanDeletions() {
         for (let match of this.file.matchAll(this.data.EMPTY_REGEXP)) {
             this.notes_to_delete.push(parseInt(match[1]))
+        }
+        const prop = this.data.idFrontmatterProperty
+        const raw = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
+        if (typeof raw === "string" && raw.endsWith("-delete")) {
+            const id = parseInt(raw.slice(0, -7), 10)
+            if (!Number.isNaN(id)) {
+                this.notes_to_delete.push(id)
+                this.hadDeleteMarkerInFrontmatter = true
+            }
         }
     }
 
@@ -347,12 +371,14 @@ export class AllFile extends AbstractFile {
         this.notes_to_edit = []
         this.notes_to_delete = []
         this.frontmatter_ids_ordered = []
+        this.hadDeleteMarkerInFrontmatter = false
     }
 
     getFrontmatterIds(): number[] | null {
         const prop = this.data.idFrontmatterProperty
         const raw = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
         if (raw == null) return null
+        if (typeof raw === "string" && raw.endsWith("-delete")) return null
         if (Array.isArray(raw)) return raw.map((x: unknown) => Number(x)).filter((n) => !Number.isNaN(n))
         const n = Number(raw)
         return Number.isNaN(n) ? null : [n]
@@ -508,7 +534,15 @@ export class AllFile extends AbstractFile {
 
     writeIDs() {
         const ids = this.frontmatter_ids_ordered.filter((x): x is number => x != null)
-        if (ids.length === 0) return
+        if (ids.length === 0) {
+            if (this.hadDeleteMarkerInFrontmatter) {
+                this.file = removeFrontmatterProperty(
+                    removeIdLinesFromBody(this.file, this.data.deleteNoteLineSyntax),
+                    this.data.idFrontmatterProperty
+                )
+            }
+            return
+        }
         this.file = setFrontmatterAnkiIds(
             removeIdLinesFromBody(this.file, this.data.deleteNoteLineSyntax),
             ids[0],
