@@ -76,7 +76,7 @@ def test_cards_front_back_tag_type(col: Collection):
     note2 = find_note_with_1st_field("This is a test. This should not have any tags except default ones.<br />\nAnd the test is continuing.", anki_IDs, col)
     # assert note2.fields[0] == "This is a test. This should not have any tags except default ones.<br />\nAnd the test is continuing."
     assert note2.fields[1] == "Test successful!"
-    assert note2.has_tag('Obsidian_to_Anki')
+    assert note2.has_tag('Obsidanki')
     assert len(note2.tags) == 1
 
     note3 = find_note_with_1st_field("This is a test. this should have meow-tag<br />\nAnd the test is continuing. ", anki_IDs, col)

@@ -408,7 +408,7 @@ export class SettingsTab extends PluginSettingTab {
 		plugin.settings["IGNORED_FILE_GLOBS"] = plugin.settings.hasOwnProperty("IGNORED_FILE_GLOBS") ? plugin.settings["IGNORED_FILE_GLOBS"] : DEFAULT_IGNORED_FILE_GLOBS
 		const descriptionFragment = document.createDocumentFragment();
 		descriptionFragment.createEl("span", { text: "Glob patterns for files to ignore. You can add multiple patterns. One per line. Have a look at the " })
-		descriptionFragment.createEl("a", { text: "README.md", href: "https://github.com/Pseudonium/Obsidian_to_Anki?tab=readme-ov-file#features" });
+		descriptionFragment.createEl("a", { text: "README.md", href: "https://github.com/zavanton123/obsidanki?tab=readme-ov-file#features" });
 		descriptionFragment.createEl("span", { text: " for more information, examples and further resources." })
 
 
@@ -435,8 +435,8 @@ export class SettingsTab extends PluginSettingTab {
 		let {containerEl} = this
 
 		containerEl.empty()
-		containerEl.createEl('h2', {text: 'Obsidian_to_Anki settings'})
-		containerEl.createEl('a', {text: 'For more information check the wiki', href: "https://github.com/Pseudonium/Obsidian_to_Anki/wiki"})
+		containerEl.createEl('h2', {text: 'Obsidanki settings'})
+		containerEl.createEl('a', {text: 'For more information check the wiki', href: "https://github.com/zavanton123/obsidanki/wiki"})
 		this.setup_note_table()
 		this.setup_folder_table()
 		this.setup_syntax()

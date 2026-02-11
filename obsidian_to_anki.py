@@ -43,7 +43,7 @@ NOTE_DICT_TEMPLATE = {
         "allowDuplicate": False,
         "duplicateScope": "deck"
     },
-    "tags": ["Obsidian_to_Anki"],
+    "tags": ["Obsidanki"],
     # ^So that you can see what was added automatically.
     "audio": list()
 }
@@ -730,7 +730,7 @@ class Config:
         config["DEFAULT"] = dict()  # Removes DEFAULT if it's there.
         config.setdefault("Defaults", dict())
         config["Defaults"].setdefault(
-            "Tag", "Obsidian_to_Anki"
+            "Tag", "Obsidanki"
         )
         config["Defaults"].setdefault(
             "Deck", "Default"

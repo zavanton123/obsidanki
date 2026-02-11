@@ -33,7 +33,7 @@ export default class MyPlugin extends Plugin {
 			},
 			Defaults: {
 				"Scan Directory": "",
-				"Tag": "Obsidian_to_Anki",
+				"Tag": "Obsidanki",
 				"Deck": "Default",
 				"Scheduling Interval": 0,
 				"Add File Link": false,
@@ -223,7 +223,7 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async onload() {
-		console.log('loading Obsidian_to_Anki...');
+		console.log('loading Obsidanki...');
 		addIcon('anki', ANKI_ICON)
 
 		try {
@@ -252,7 +252,7 @@ export default class MyPlugin extends Plugin {
 
 		this.addSettingTab(new SettingsTab(this.app, this));
 
-		this.addRibbonIcon('anki', 'Obsidian_to_Anki - Scan Vault', async () => {
+		this.addRibbonIcon('anki', 'Obsidanki - Scan Vault', async () => {
 			await this.scanVault()
 		})
 
@@ -266,8 +266,8 @@ export default class MyPlugin extends Plugin {
 	}
 
 	async onunload() {
-		console.log("Saving settings for Obsidian_to_Anki...")
+		console.log("Saving settings for Obsidanki...")
 		this.saveAllData()
-		console.log('unloading Obsidian_to_Anki...');
+		console.log('unloading Obsidanki...');
 	}
 }

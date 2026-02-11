@@ -13,7 +13,7 @@
         "test": "npm run test-wdio && npm run test-py"
     },
     "keywords": [],
-    "author": "",
+    "author": "Anton Zaviyalov",
     "license": "MIT",
     "devDependencies": {
         "@rollup/plugin-commonjs": "15.1.0",

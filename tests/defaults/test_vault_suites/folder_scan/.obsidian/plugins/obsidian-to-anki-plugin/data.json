@@ -29,7 +29,7 @@
     },
     "Defaults": {
       "Scan Directory": "folder_scan/scan_dir",
-      "Tag": "Obsidian_to_Anki",
+      "Tag": "Obsidanki",
       "Deck": "Default",
       "Scheduling Interval": 0,
       "Add File Link": false,
