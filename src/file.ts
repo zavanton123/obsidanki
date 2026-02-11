@@ -15,6 +15,9 @@ const double_regexp: RegExp = /(?:\r\n|\r|\n)((?:\r\n|\r|\n)(?:<!--)?ID: \d+)/g
 const FRONTMATTER_REGEXP = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
 /** Lines that are only an ID (so we don't remove inline note lines that contain "ID: 123" in the middle). */
 const ID_ONLY_LINE_REGEXP = /^\s*(?:<!--)?ID: \d+(?:-->)?\s*$/
+/** First H1 line (for stripping from back content when creating file-as-card). */
+const H1_LINE_REGEXP = /^#\s+.+$/m
+const OBS_TAG_REGEXP = /#(\w+)/g
 
 function setFrontmatterAnkiIds(content: string, id: number, propName: string): string {
     const key = propName + ":"
@@ -193,6 +196,29 @@ abstract class AbstractFile {
         this.global_tags = ""
     }
 
+    /** True when frontmatter has anki-deck or anki-tags (file should become one Basic card). */
+    hasAnkiFrontmatter(): boolean {
+        const fm = this.file_cache?.frontmatter
+        if (fm == null) return false
+        const deckProp = this.data.deckFrontmatterProperty
+        const tagsProp = this.data.tagsFrontmatterProperty
+        return (deckProp != null && fm[deckProp] !== undefined) ||
+            (tagsProp != null && fm[tagsProp] !== undefined)
+    }
+
+    /** Note name from path: basename without .md extension. */
+    getNoteNameFromPath(): string {
+        const base = this.path.split("/").pop() ?? this.path
+        return base.replace(/\.md$/i, "") ?? base
+    }
+
+    /** Body text after frontmatter, with the first H1 line removed. */
+    getBodyWithoutFrontmatterAndH1(): string {
+        let body = this.file.replace(FRONTMATTER_REGEXP, "").trimStart()
+        body = body.replace(H1_LINE_REGEXP, "").trimStart()
+        return body.trim()
+    }
+
     getHash(): string {
         return Md5.hashStr(this.file) as string
     }
@@ -365,6 +391,54 @@ export class AllFile extends AbstractFile {
         return Number.isNaN(n) ? null : [n]
     }
 
+    /** Create one Basic card from the whole file: front = note name, back = body without frontmatter and H1. */
+    scanAsBasicCard() {
+        const BASIC = "Basic"
+        const fieldNames: string[] = this.data.fields_dict[BASIC] ?? ["Front", "Back"]
+        const noteName = this.getNoteNameFromPath()
+        const backRaw = this.getBodyWithoutFrontmatterAndH1()
+        const backFormatted = this.formatter.format(backRaw, this.data.curly_cloze, this.data.highlights_to_cloze)
+
+        const template = JSON.parse(JSON.stringify(this.data.template)) as AnkiConnectNote
+        template.modelName = BASIC
+        template.fields = {} as Record<string, string>
+        for (let i = 0; i < fieldNames.length; i++) {
+            template.fields[fieldNames[i]] = i === 0 ? noteName : i === 1 ? backFormatted : ""
+        }
+        template.deckName = this.target_deck
+        template.tags = [...(this.data.template.tags ?? [])]
+
+        const fileLinkField = this.data.file_link_fields?.[BASIC]
+        if (this.url && fileLinkField && template.fields[fileLinkField] !== undefined) {
+            this.formatter.format_note_with_url(template, this.url, this.data.file_link_fields[BASIC])
+        }
+        if (Object.keys(this.frozen_fields_dict).length && this.frozen_fields_dict[BASIC]) {
+            this.formatter.format_note_with_frozen_fields(template, this.frozen_fields_dict)
+        }
+        if (this.data.add_obs_tags) {
+            for (const key of Object.keys(template.fields)) {
+                for (const match of template.fields[key].matchAll(OBS_TAG_REGEXP)) {
+                    template.tags.push(match[1])
+                }
+                template.fields[key] = template.fields[key].replace(OBS_TAG_REGEXP, "")
+            }
+        }
+
+        const optionalId = this.getFrontmatterIds()?.[0] ?? null
+        const parsed: AnkiConnectNoteAndID = { note: template, identifier: optionalId }
+
+        if (parsed.identifier != null && this.data.EXISTING_IDS.includes(parsed.identifier)) {
+            this.notes_to_edit.push(parsed)
+        } else {
+            if (parsed.identifier != null && !this.data.EXISTING_IDS.includes(parsed.identifier)) {
+                console.warn("Note with id", parsed.identifier, " in file ", this.path, " does not exist in Anki!")
+            }
+            template.tags.push(...this.global_tags.split(TAG_SEP))
+            this.notes_to_add.push(parsed.note)
+        }
+        this.frontmatter_ids_ordered.push(parsed.identifier)
+    }
+
     scanNotes() {
         for (let note_match of this.file.matchAll(this.data.NOTE_REGEXP)) {
             let [note, position]: [string, number] = [note_match[1], note_match.index + note_match[0].indexOf(note_match[1]) + note_match[1].length]
@@ -497,12 +571,16 @@ export class AllFile extends AbstractFile {
 
     scanFile() {
         this.setupScan()
-        this.scanNotes()
-        this.scanInlineNotes()
-        for (let note_type in this.custom_regexps) {
-            const regexp_str: string = this.custom_regexps[note_type]
-            if (regexp_str) {
-                this.search(note_type, regexp_str)
+        if (this.hasAnkiFrontmatter()) {
+            this.scanAsBasicCard()
+        } else {
+            this.scanNotes()
+            this.scanInlineNotes()
+            for (const note_type of Object.keys(this.custom_regexps)) {
+                const regexp_str = this.custom_regexps[note_type]
+                if (regexp_str) {
+                    this.search(note_type, regexp_str)
+                }
             }
         }
         this.all_notes_to_add = this.notes_to_add.concat(this.inline_notes_to_add).concat(this.regex_notes_to_add)
