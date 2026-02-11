@@ -12,12 +12,10 @@ export interface PluginSettings {
 		"End Note": string,
 		"Begin Inline Note": string,
 		"End Inline Note": string,
-		"Target Deck Line": string,
 		"Deck Frontmatter Property": string,
-		"File Tags Line": string,
 		"Tags Frontmatter Property": string,
 		"ID Frontmatter Property": string,
-		"Delete Note Line": string,
+		"ID Delete Postfix": string,
 		"Frozen Fields Line": string
 	},
 	Defaults: {
@@ -29,7 +27,6 @@ export interface PluginSettings {
 		"Add Context": boolean,
 		"CurlyCloze": boolean,
 		"CurlyCloze - Highlights to Clozes": boolean,
-		"ID Comments": boolean,
 		"Add Obsidian Tags": boolean
 	},
 	IGNORED_FILE_GLOBS:string[]
@@ -46,22 +43,18 @@ export interface FileData {
 	vault_name: string
 
 	FROZEN_REGEXP: RegExp
-	DECK_REGEXP: RegExp
-	TAG_REGEXP: RegExp
 	NOTE_REGEXP: RegExp
 	INLINE_REGEXP: RegExp
-	EMPTY_REGEXP: RegExp
 
 	curly_cloze: boolean
 	highlights_to_cloze: boolean
-	comment: boolean
 	add_context: boolean
 	add_obs_tags: boolean
 	deckFrontmatterProperty: string
 	tagsFrontmatterProperty: string
 	idFrontmatterProperty: string
-	/** Raw "Delete Note Line" syntax (e.g. "DELETE") so we can preserve "DELETE\\nID: 123" when stripping ID lines. */
-	deleteNoteLineSyntax: string
+	/** Postfix on anki-id value to mark note for deletion (e.g. "-delete"). */
+	idDeletePostfix: string
 }
 
 export interface ParsedSettings extends FileData {

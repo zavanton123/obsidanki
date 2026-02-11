@@ -4,13 +4,12 @@ import * as AnkiConnect from './anki'
 const defaultDescs = {
 	"Scan Directory": "The directory to scan. Leave empty to scan the entire vault",
 	"Tag": "The tag that the plugin automatically adds to any generated cards.",
-	"Deck": "The deck the plugin adds cards to if TARGET DECK is not specified in the file.",
+	"Deck": "The deck the plugin adds cards to if anki-deck is not set in the note's frontmatter.",
 	"Scheduling Interval": "The time, in minutes, between automatic scans of the vault. Set this to 0 to disable automatic scanning.",
 	"Add File Link": "Append a link to the file that generated the flashcard on the field specified in the table.",
 	"Add Context": "Append 'context' for the card, in the form of path > heading > heading etc, to the field specified in the table.",
 	"CurlyCloze": "Convert {cloze deletions} -> {{c1::cloze deletions}} on note types that have a 'Cloze' in their name.",
 	"CurlyCloze - Highlights to Clozes": "Convert ==highlights== -> {highlights} to be processed by CurlyCloze.",
-	"ID Comments": "Wrap note IDs in a HTML comment.",
 	"Add Obsidian Tags": "Interpret #tags in the fields of a note as Anki tags, removing them from the note text in Anki."
 }
 
@@ -156,6 +155,10 @@ export class SettingsTab extends PluginSettingTab {
 	setup_syntax() {
 		let {containerEl} = this;
 		const plugin = (this as any).plugin
+		const obsoleteKeys = ["Target Deck Line", "File Tags Line", "Delete Note Line"]
+		for (const k of obsoleteKeys) {
+			if (plugin.settings["Syntax"].hasOwnProperty(k)) delete plugin.settings["Syntax"][k]
+		}
 		if (!plugin.settings["Syntax"].hasOwnProperty("Deck Frontmatter Property")) {
 			plugin.settings["Syntax"]["Deck Frontmatter Property"] = "anki-deck"
 		}
@@ -164,6 +167,9 @@ export class SettingsTab extends PluginSettingTab {
 		}
 		if (!plugin.settings["Syntax"].hasOwnProperty("ID Frontmatter Property")) {
 			plugin.settings["Syntax"]["ID Frontmatter Property"] = "anki-id"
+		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("ID Delete Postfix")) {
+			plugin.settings["Syntax"]["ID Delete Postfix"] = "-delete"
 		}
 		let syntax_settings = containerEl.createEl('h3', {text: 'Syntax Settings'})
 		for (let key of Object.keys(plugin.settings["Syntax"])) {
@@ -205,8 +211,7 @@ export class SettingsTab extends PluginSettingTab {
 			plugin.settings["Defaults"]["Add Obsidian Tags"] = false
 		}
 		for (let key of Object.keys(plugin.settings["Defaults"])) {
-			// To account for removal of regex setting
-			if (key === "Regex") {
+			if (key === "Regex" || key === "ID Comments") {
 				continue
 			}
 			if (typeof plugin.settings["Defaults"][key] === "string") {

@@ -1,7 +1,6 @@
 import { PluginSettings, ParsedSettings } from './interfaces/settings-interface'
 import { App } from 'obsidian'
 import * as AnkiConnect from './anki'
-import { ID_REGEXP_STR } from './note'
 import { escapeRegex } from './constants'
 
 export async function settingToData(app: App, settings: PluginSettings, fields_dict: Record<string, string[]>): Promise<ParsedSettings> {
@@ -29,21 +28,17 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
 
     //RegExp section
     result.FROZEN_REGEXP = new RegExp(escapeRegex(settings.Syntax["Frozen Fields Line"]) + String.raw` - (.*?):\n((?:[^\n][\n]?)+)`, "g")
-    result.DECK_REGEXP = new RegExp(String.raw`^` + escapeRegex(settings.Syntax["Target Deck Line"]) + String.raw`(?:\n|: )(.*)`, "m")
-    result.TAG_REGEXP = new RegExp(String.raw`^` + escapeRegex(settings.Syntax["File Tags Line"]) + String.raw`(?:\n|: )(.*)`, "m")
     result.NOTE_REGEXP = new RegExp(String.raw`^` + escapeRegex(settings.Syntax["Begin Note"]) + String.raw`\n([\s\S]*?\n)` + escapeRegex(settings.Syntax["End Note"]), "gm")
     result.INLINE_REGEXP = new RegExp(escapeRegex(settings.Syntax["Begin Inline Note"]) + String.raw`(.*?)` + escapeRegex(settings.Syntax["End Inline Note"]), "g")
-    result.EMPTY_REGEXP = new RegExp(escapeRegex(settings.Syntax["Delete Note Line"]) + ID_REGEXP_STR, "g")
     result.deckFrontmatterProperty = settings.Syntax["Deck Frontmatter Property"] ?? "anki-deck"
     result.tagsFrontmatterProperty = settings.Syntax["Tags Frontmatter Property"] ?? "anki-tags"
     result.idFrontmatterProperty = settings.Syntax["ID Frontmatter Property"] ?? "anki-id"
-    result.deleteNoteLineSyntax = settings.Syntax["Delete Note Line"] ?? "DELETE"
+    result.idDeletePostfix = settings.Syntax["ID Delete Postfix"] ?? "-delete"
 
     //Just a simple transfer
     result.curly_cloze = settings.Defaults.CurlyCloze
     result.highlights_to_cloze = settings.Defaults["CurlyCloze - Highlights to Clozes"]
     result.add_file_link = settings.Defaults["Add File Link"]
-    result.comment = settings.Defaults["ID Comments"]
     result.add_context = settings.Defaults["Add Context"]
     result.add_obs_tags = settings.Defaults["Add Obsidian Tags"]
     result.ignored_file_globs = settings.IGNORED_FILE_GLOBS ?? [];

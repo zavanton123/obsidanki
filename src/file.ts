@@ -42,17 +42,9 @@ function removeFrontmatterProperty(content: string, propName: string): string {
     return "---\n" + newFm + "\n---\n" + rest
 }
 
-/** Remove ID-only lines from body. Preserve ID line when it immediately follows a line starting with preserveIdAfterLine (e.g. "DELETE"). */
-function removeIdLinesFromBody(content: string, preserveIdAfterLine?: string): string {
-    const lines = content.split(/\r?\n/)
-    const keep = preserveIdAfterLine ? preserveIdAfterLine.trim() : ""
-    return lines
-        .filter((line, i) => {
-            if (!ID_ONLY_LINE_REGEXP.test(line)) return true
-            if (keep && i > 0 && lines[i - 1].trimStart().startsWith(keep)) return true
-            return false
-        })
-        .join("\n")
+/** Remove ID-only lines from body (IDs are stored in frontmatter anki-id). */
+function removeIdLinesFromBody(content: string): string {
+    return content.split(/\r?\n/).filter((line) => !ID_ONLY_LINE_REGEXP.test(line)).join("\n")
 }
 
 function id_to_str(identifier:number, inline:boolean = false, comment:boolean = false): string {
@@ -184,8 +176,7 @@ abstract class AbstractFile {
             this.target_deck = String(frontmatterDeck)
             return
         }
-        const result = this.file.match(this.data.DECK_REGEXP)
-        this.target_deck = result ? result[1] : this.data.template["deckName"]
+        this.target_deck = this.data.template["deckName"]
     }
 
     setup_global_tags() {
@@ -199,8 +190,7 @@ abstract class AbstractFile {
             }
             return
         }
-        const result = this.file.match(this.data.TAG_REGEXP)
-        this.global_tags = result ? result[1] : ""
+        this.global_tags = ""
     }
 
     getHash(): string {
@@ -210,13 +200,11 @@ abstract class AbstractFile {
     abstract scanFile(): void
 
     scanDeletions() {
-        for (let match of this.file.matchAll(this.data.EMPTY_REGEXP)) {
-            this.notes_to_delete.push(parseInt(match[1]))
-        }
         const prop = this.data.idFrontmatterProperty
+        const postfix = this.data.idDeletePostfix ?? "-delete"
         const raw = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
-        if (typeof raw === "string" && raw.endsWith("-delete")) {
-            const id = parseInt(raw.slice(0, -7), 10)
+        if (typeof raw === "string" && postfix && raw.endsWith(postfix)) {
+            const id = parseInt(raw.slice(0, -postfix.length), 10)
             if (!Number.isNaN(id)) {
                 this.notes_to_delete.push(id)
                 this.hadDeleteMarkerInFrontmatter = true
@@ -258,7 +246,7 @@ abstract class AbstractFile {
     abstract writeIDs(): void
 
     removeEmpties() {
-        this.file = this.file.replace(this.data.EMPTY_REGEXP, "")
+        // No-op: body-based "Delete Note Line" removed; deletion is via anki-id postfix only.
     }
 
     getCreateDecks(): AnkiConnect.AnkiConnectRequest {        
@@ -341,14 +329,6 @@ export class AllFile extends AbstractFile {
     add_spans_to_ignore() {
         this.ignore_spans = []
         this.ignore_spans.push(...spans(this.data.FROZEN_REGEXP, this.file))
-        const deck_result = this.file.match(this.data.DECK_REGEXP)
-        if (deck_result) {
-            this.ignore_spans.push([deck_result.index, deck_result.index + deck_result[0].length])
-        }
-        const tag_result = this.file.match(this.data.TAG_REGEXP)
-        if (tag_result) {
-            this.ignore_spans.push([tag_result.index, tag_result.index + tag_result[0].length])
-        }
         this.ignore_spans.push(...spans(this.data.NOTE_REGEXP, this.file))
         this.ignore_spans.push(...spans(this.data.INLINE_REGEXP, this.file))
         this.ignore_spans.push(...spans(c.OBS_INLINE_MATH_REGEXP, this.file))
@@ -378,7 +358,8 @@ export class AllFile extends AbstractFile {
         const prop = this.data.idFrontmatterProperty
         const raw = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
         if (raw == null) return null
-        if (typeof raw === "string" && raw.endsWith("-delete")) return null
+        const postfix = this.data.idDeletePostfix ?? "-delete"
+        if (typeof raw === "string" && postfix && raw.endsWith(postfix)) return null
         if (Array.isArray(raw)) return raw.map((x: unknown) => Number(x)).filter((n) => !Number.isNaN(n))
         const n = Number(raw)
         return Number.isNaN(n) ? null : [n]
@@ -537,14 +518,14 @@ export class AllFile extends AbstractFile {
         if (ids.length === 0) {
             if (this.hadDeleteMarkerInFrontmatter) {
                 this.file = removeFrontmatterProperty(
-                    removeIdLinesFromBody(this.file, this.data.deleteNoteLineSyntax),
+                    removeIdLinesFromBody(this.file),
                     this.data.idFrontmatterProperty
                 )
             }
             return
         }
         this.file = setFrontmatterAnkiIds(
-            removeIdLinesFromBody(this.file, this.data.deleteNoteLineSyntax),
+            removeIdLinesFromBody(this.file),
             ids[0],
             this.data.idFrontmatterProperty
         )

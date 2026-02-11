@@ -26,12 +26,10 @@ export default class MyPlugin extends Plugin {
 				"End Note": "END",
 				"Begin Inline Note": "STARTI",
 				"End Inline Note": "ENDI",
-				"Target Deck Line": "TARGET DECK",
 				"Deck Frontmatter Property": "anki-deck",
-				"File Tags Line": "FILE TAGS",
 				"Tags Frontmatter Property": "anki-tags",
 				"ID Frontmatter Property": "anki-id",
-				"Delete Note Line": "DELETE",
+				"ID Delete Postfix": "-delete",
 				"Frozen Fields Line": "FROZEN"
 			},
 			Defaults: {
@@ -43,7 +41,6 @@ export default class MyPlugin extends Plugin {
 				"Add Context": false,
 				"CurlyCloze": false,
 				"CurlyCloze - Highlights to Clozes": false,
-				"ID Comments": true,
 				"Add Obsidian Tags": false,
 			},
 			IGNORED_FILE_GLOBS: DEFAULT_IGNORED_FILE_GLOBS,
