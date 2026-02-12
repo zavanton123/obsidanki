@@ -4,7 +4,7 @@ import * as AnkiConnect from './anki'
 const defaultDescs = {
 	"Scan Directory": "The directory to scan. Leave empty to scan the entire vault",
 	"Tag": "The tag that the plugin automatically adds to any generated cards.",
-	"Deck": "The deck the plugin adds cards to if anki-deck is not set in the note's frontmatter.",
+	"Deck": "The deck the plugin adds cards to if the deck frontmatter property is not set in the note.",
 	"Scheduling Interval": "The time, in minutes, between automatic scans of the vault. Set this to 0 to disable automatic scanning.",
 	"Add File Link": "Append a link to the file that generated the flashcard on the field specified in the table.",
 	"Add Context": "Append 'context' for the card, in the form of path > heading > heading etc, to the field specified in the table.",
@@ -160,10 +160,10 @@ export class SettingsTab extends PluginSettingTab {
 			if (plugin.settings["Syntax"].hasOwnProperty(k)) delete plugin.settings["Syntax"][k]
 		}
 		if (!plugin.settings["Syntax"].hasOwnProperty("Deck Frontmatter Property")) {
-			plugin.settings["Syntax"]["Deck Frontmatter Property"] = "anki-deck"
+			plugin.settings["Syntax"]["Deck Frontmatter Property"] = "deck"
 		}
 		if (!plugin.settings["Syntax"].hasOwnProperty("Tags Frontmatter Property")) {
-			plugin.settings["Syntax"]["Tags Frontmatter Property"] = "anki-tags"
+			plugin.settings["Syntax"]["Tags Frontmatter Property"] = "tags"
 		}
 		if (!plugin.settings["Syntax"].hasOwnProperty("Front Frontmatter Property")) {
 			plugin.settings["Syntax"]["Front Frontmatter Property"] = "anki-front"

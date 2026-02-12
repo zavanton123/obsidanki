@@ -197,7 +197,7 @@ abstract class AbstractFile {
         this.global_tags = ""
     }
 
-    /** True when frontmatter has anki-deck (file should become one Basic card). anki-tags alone does not trigger creation. */
+    /** True when frontmatter has deck property (file should become one Basic card). Tags alone do not trigger creation. */
     hasAnkiFrontmatter(): boolean {
         const fm = this.file_cache?.frontmatter
         if (fm == null) return false
