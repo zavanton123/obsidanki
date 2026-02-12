@@ -1,4 +1,4 @@
-import { PluginSettingTab, Setting, Notice, TFolder } from 'obsidian'
+import { PluginSettingTab, Setting, Notice } from 'obsidian'
 import * as AnkiConnect from './anki'
 
 const defaultDescs = {
@@ -199,6 +199,12 @@ export class SettingsTab extends PluginSettingTab {
 		if (plugin.settings["Defaults"].hasOwnProperty("Scheduling Interval")) {
 			delete plugin.settings["Defaults"]["Scheduling Interval"]
 		}
+		if (plugin.settings.hasOwnProperty("FOLDER_DECKS")) {
+			delete plugin.settings["FOLDER_DECKS"]
+		}
+		if (plugin.settings.hasOwnProperty("FOLDER_TAGS")) {
+			delete plugin.settings["FOLDER_TAGS"]
+		}
 		// To account for new add context
 		if (!(plugin.settings["Defaults"].hasOwnProperty("Add Context"))) {
 			plugin.settings["Defaults"]["Add Context"] = false
@@ -239,91 +245,6 @@ export class SettingsTab extends PluginSettingTab {
 					)
 			}
 		}
-	}
-
-	get_folders(): TFolder[] {
-		const app = (this as any).plugin.app
-		let folder_list: TFolder[] = [app.vault.getRoot()]
-		for (let folder of folder_list) {
-			let filtered_list: TFolder[] = folder.children.filter((element) => element.hasOwnProperty("children")) as TFolder[]
-			folder_list.push(...filtered_list)
-		}
-		return folder_list.slice(1) //Removes initial vault folder
-	}
-
-	setup_folder_deck(folder: TFolder, row_cells: HTMLCollection) {
-		const plugin = (this as any).plugin
-		let folder_decks = plugin.settings.FOLDER_DECKS
-		if (!(folder_decks.hasOwnProperty(folder.path))) {
-			folder_decks[folder.path] = ""
-		}
-		let folder_deck = new Setting(row_cells[1] as HTMLElement)
-			.addText(
-				text => text.setValue(folder_decks[folder.path])
-				.onChange((value) => {
-					plugin.settings.FOLDER_DECKS[folder.path] = value
-					plugin.saveAllData()
-				})
-			)
-		folder_deck.settingEl = row_cells[1] as HTMLElement
-		folder_deck.infoEl.remove()
-		folder_deck.controlEl.className += " anki-center"
-	}
-
-	setup_folder_tag(folder: TFolder, row_cells: HTMLCollection) {
-		const plugin = (this as any).plugin
-		let folder_tags = plugin.settings.FOLDER_TAGS
-		if (!(folder_tags.hasOwnProperty(folder.path))) {
-			folder_tags[folder.path] = ""
-		}
-		let folder_tag = new Setting(row_cells[2] as HTMLElement)
-			.addText(
-				text => text.setValue(folder_tags[folder.path])
-				.onChange((value) => {
-					plugin.settings.FOLDER_TAGS[folder.path] = value
-					plugin.saveAllData()
-				})
-			)
-		folder_tag.settingEl = row_cells[2] as HTMLElement
-		folder_tag.infoEl.remove()
-		folder_tag.controlEl.className += " anki-center"
-	}
-
-	setup_folder_table() {
-		let {containerEl} = this;
-		const plugin = (this as any).plugin
-		const folder_list = this.get_folders()
-		containerEl.createEl('h3', {text: 'Folder settings'})
-		this.create_collapsible("Folder Table")
-		let folder_table = containerEl.createEl('table', {cls: "anki-settings-table"})
-		let head = folder_table.createTHead()
-		let header_row = head.insertRow()
-		for (let header of ["Folder", "Folder Deck", "Folder Tags"]) {
-			let th = document.createElement("th")
-			th.appendChild(document.createTextNode(header))
-			header_row.appendChild(th)
-		}
-		let main_body = folder_table.createTBody()
-		if (!(plugin.settings.hasOwnProperty("FOLDER_DECKS"))) {
-			plugin.settings.FOLDER_DECKS = {}
-		}
-		if (!(plugin.settings.hasOwnProperty("FOLDER_TAGS"))) {
-			plugin.settings.FOLDER_TAGS = {}
-		}
-		for (let folder of folder_list) {
-			let row = main_body.insertRow()
-
-			row.insertCell()
-			row.insertCell()
-			row.insertCell()
-
-			let row_cells = row.children
-
-			row_cells[0].innerHTML = folder.path
-			this.setup_folder_deck(folder, row_cells)
-			this.setup_folder_tag(folder, row_cells)
-		}
-
 	}
 
 	setup_buttons() {
@@ -430,7 +351,6 @@ export class SettingsTab extends PluginSettingTab {
 		containerEl.createEl('h2', {text: 'Obsidanki settings'})
 		containerEl.createEl('a', {text: 'For more information check the wiki', href: "https://github.com/zavanton123/obsidanki/wiki"})
 		this.setup_note_table()
-		this.setup_folder_table()
 		this.setup_syntax()
 		this.setup_defaults()
 		this.setup_buttons()

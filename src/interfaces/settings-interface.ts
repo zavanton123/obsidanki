@@ -5,8 +5,6 @@ export interface PluginSettings {
 	CUSTOM_REGEXPS: Record<string, string>,
 	FILE_LINK_FIELDS: Record<string, string>,
 	CONTEXT_FIELDS: Record<string, string>,
-	FOLDER_DECKS: Record<string, string>,
-	FOLDER_TAGS: Record<string, string>,
 	Syntax: {
 		"Begin Inline Note": string,
 		"End Inline Note": string,
@@ -55,7 +53,5 @@ export interface FileData {
 
 export interface ParsedSettings extends FileData {
 	add_file_link: boolean
-	folder_decks: Record<string, string>
-	folder_tags: Record<string, string>
 	ignored_file_globs: string[]
 }

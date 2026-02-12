@@ -1,6 +1,6 @@
 /*Class for managing a list of files, and their Anki requests.*/
 import { ParsedSettings, FileData } from './interfaces/settings-interface'
-import { App, TFile, TFolder, TAbstractFile, CachedMetadata, FileSystemAdapter, Notice } from 'obsidian'
+import { App, TFile, CachedMetadata, FileSystemAdapter, Notice } from 'obsidian'
 import { AllFile } from './file'
 import * as AnkiConnect from './anki'
 import { basename } from 'path'
@@ -83,51 +83,14 @@ export class FileManager {
         return notIgnoredFiles;
     }
 
-    getFolderPathList(file: TFile): TFolder[] {
-        let result: TFolder[] = []
-        let abstractFile: TAbstractFile = file
-        while (abstractFile && abstractFile.hasOwnProperty('parent')) {
-            result.push(abstractFile.parent)
-            abstractFile = abstractFile.parent
-        }
-        result.pop() // Removes top-level vault
-        return result
-    }
-
-    getDefaultDeck(file: TFile, folder_path_list: TFolder[]): string {
-        let folder_decks = this.data.folder_decks
-        for (let folder of folder_path_list) {
-            // Loops over them from innermost folder
-            if (folder_decks[folder.path]) {
-                return toAnkiDeckName(folder_decks[folder.path])
-            }
-        }
-        // If no decks specified
-        return toAnkiDeckName(this.data.template.deckName)
-    }
-
-    getDefaultTags(file: TFile, folder_path_list: TFolder[]): string[] {
-        let folder_tags = this.data.folder_tags
-        let tags_list: string[] = []
-        for (let folder of folder_path_list) {
-            // Loops over them from innermost folder
-            if (folder_tags[folder.path]) {
-                tags_list.push(...folder_tags[folder.path].split(" "))
-            }
-        }
-        tags_list.push(...this.data.template.tags)
-        return tags_list
-    }
-
     dataToFileData(file: TFile): FileData {
-        const folder_path_list: TFolder[] = this.getFolderPathList(file)
         let result: FileData = JSON.parse(JSON.stringify(this.data))
         //Lost regexp, so have to get them back
         result.FROZEN_REGEXP = this.data.FROZEN_REGEXP
         result.NOTE_REGEXP = this.data.NOTE_REGEXP
         result.INLINE_REGEXP = this.data.INLINE_REGEXP
-        result.template.deckName = this.getDefaultDeck(file, folder_path_list)
-        result.template.tags = this.getDefaultTags(file, folder_path_list)
+        result.template.deckName = toAnkiDeckName(this.data.template.deckName)
+        result.template.tags = [...this.data.template.tags]
         return result
     }
 

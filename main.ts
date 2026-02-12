@@ -19,8 +19,6 @@ export default class MyPlugin extends Plugin {
 			CUSTOM_REGEXPS: {},
 			FILE_LINK_FIELDS: {},
 			CONTEXT_FIELDS: {},
-			FOLDER_DECKS: {},
-			FOLDER_TAGS: {},
 			Syntax: {
 				"Begin Inline Note": "STARTI",
 				"End Inline Note": "ENDI",
