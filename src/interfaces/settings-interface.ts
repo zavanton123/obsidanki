@@ -7,10 +7,10 @@ export interface PluginSettings {
 	Syntax: {
 		"Begin Inline Note": string,
 		"End Inline Note": string,
-		"Deck Frontmatter Property": string,
-		"Tags Frontmatter Property": string,
-		"Front Frontmatter Property": string,
-		"ID Frontmatter Property": string,
+		"Anki Deck Property": string,
+		"Anki Tags Property": string,
+		"Anki Card Front Property": string,
+		"Anki Card ID Property": string,
 		"ID Delete Postfix": string
 	},
 	Defaults: {

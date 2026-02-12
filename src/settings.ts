@@ -123,17 +123,34 @@ export class SettingsTab extends PluginSettingTab {
 		for (const k of obsoleteKeys) {
 			if (plugin.settings["Syntax"].hasOwnProperty(k)) delete plugin.settings["Syntax"][k]
 		}
-		if (!plugin.settings["Syntax"].hasOwnProperty("Deck Frontmatter Property")) {
-			plugin.settings["Syntax"]["Deck Frontmatter Property"] = "deck"
+		// Migrate old Syntax key names to new names
+		if (plugin.settings["Syntax"].hasOwnProperty("Deck Frontmatter Property")) {
+			plugin.settings["Syntax"]["Anki Deck Property"] = plugin.settings["Syntax"]["Deck Frontmatter Property"]
+			delete plugin.settings["Syntax"]["Deck Frontmatter Property"]
 		}
-		if (!plugin.settings["Syntax"].hasOwnProperty("Tags Frontmatter Property")) {
-			plugin.settings["Syntax"]["Tags Frontmatter Property"] = "tags"
+		if (plugin.settings["Syntax"].hasOwnProperty("Tags Frontmatter Property")) {
+			plugin.settings["Syntax"]["Anki Tags Property"] = plugin.settings["Syntax"]["Tags Frontmatter Property"]
+			delete plugin.settings["Syntax"]["Tags Frontmatter Property"]
 		}
-		if (!plugin.settings["Syntax"].hasOwnProperty("Front Frontmatter Property")) {
-			plugin.settings["Syntax"]["Front Frontmatter Property"] = "anki-front"
+		if (plugin.settings["Syntax"].hasOwnProperty("Front Frontmatter Property")) {
+			plugin.settings["Syntax"]["Anki Card Front Property"] = plugin.settings["Syntax"]["Front Frontmatter Property"]
+			delete plugin.settings["Syntax"]["Front Frontmatter Property"]
 		}
-		if (!plugin.settings["Syntax"].hasOwnProperty("ID Frontmatter Property")) {
-			plugin.settings["Syntax"]["ID Frontmatter Property"] = "anki-id"
+		if (plugin.settings["Syntax"].hasOwnProperty("ID Frontmatter Property")) {
+			plugin.settings["Syntax"]["Anki Card ID Property"] = plugin.settings["Syntax"]["ID Frontmatter Property"]
+			delete plugin.settings["Syntax"]["ID Frontmatter Property"]
+		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("Anki Deck Property")) {
+			plugin.settings["Syntax"]["Anki Deck Property"] = "deck"
+		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("Anki Tags Property")) {
+			plugin.settings["Syntax"]["Anki Tags Property"] = "tags"
+		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("Anki Card Front Property")) {
+			plugin.settings["Syntax"]["Anki Card Front Property"] = "anki-front"
+		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("Anki Card ID Property")) {
+			plugin.settings["Syntax"]["Anki Card ID Property"] = "anki-id"
 		}
 		if (!plugin.settings["Syntax"].hasOwnProperty("ID Delete Postfix")) {
 			plugin.settings["Syntax"]["ID Delete Postfix"] = "-delete"

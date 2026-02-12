@@ -21,10 +21,10 @@ export default class MyPlugin extends Plugin {
 			Syntax: {
 				"Begin Inline Note": "STARTI",
 				"End Inline Note": "ENDI",
-				"Deck Frontmatter Property": "deck",
-				"Tags Frontmatter Property": "tags",
-				"Front Frontmatter Property": "anki-front",
-				"ID Frontmatter Property": "anki-id",
+				"Anki Deck Property": "deck",
+				"Anki Tags Property": "tags",
+				"Anki Card Front Property": "anki-front",
+				"Anki Card ID Property": "anki-id",
 				"ID Delete Postfix": "-delete"
 			},
 			Defaults: {

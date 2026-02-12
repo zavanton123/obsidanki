@@ -27,10 +27,10 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
     result.FROZEN_REGEXP = /(?!)/g
     result.NOTE_REGEXP = /(?!)/g
     result.INLINE_REGEXP = new RegExp(escapeRegex(settings.Syntax["Begin Inline Note"]) + String.raw`(.*?)` + escapeRegex(settings.Syntax["End Inline Note"]), "g")
-    result.deckFrontmatterProperty = settings.Syntax["Deck Frontmatter Property"] ?? "deck"
-    result.tagsFrontmatterProperty = settings.Syntax["Tags Frontmatter Property"] ?? "tags"
-    result.frontFrontmatterProperty = settings.Syntax["Front Frontmatter Property"] ?? "anki-front"
-    result.idFrontmatterProperty = settings.Syntax["ID Frontmatter Property"] ?? "anki-id"
+    result.deckFrontmatterProperty = settings.Syntax["Anki Deck Property"] ?? "deck"
+    result.tagsFrontmatterProperty = settings.Syntax["Anki Tags Property"] ?? "tags"
+    result.frontFrontmatterProperty = settings.Syntax["Anki Card Front Property"] ?? "anki-front"
+    result.idFrontmatterProperty = settings.Syntax["Anki Card ID Property"] ?? "anki-id"
     result.idDeletePostfix = settings.Syntax["ID Delete Postfix"] ?? "-delete"
 
     //Just a simple transfer
