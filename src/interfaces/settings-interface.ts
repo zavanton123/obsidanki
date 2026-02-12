@@ -4,7 +4,6 @@ import { AnkiConnectNote } from './note-interface'
 export interface PluginSettings {
 	CUSTOM_REGEXPS: Record<string, string>,
 	FILE_LINK_FIELDS: Record<string, string>,
-	CONTEXT_FIELDS: Record<string, string>,
 	Syntax: {
 		"Begin Inline Note": string,
 		"End Inline Note": string,
@@ -17,7 +16,6 @@ export interface PluginSettings {
 	Defaults: {
 		"Tag": string,
 		"Add File Link": boolean,
-		"Add Context": boolean,
 		"CurlyCloze": boolean,
 		"CurlyCloze - Highlights to Clozes": boolean,
 		"Add Obsidian Tags": boolean
@@ -30,7 +28,6 @@ export interface FileData {
 	fields_dict: FIELDS_DICT
 	custom_regexps: Record<string, string>
 	file_link_fields: Record<string, string>
-	context_fields: Record<string, string>
 	template: AnkiConnectNote
 	EXISTING_IDS: number[]
 	vault_name: string
@@ -41,7 +38,6 @@ export interface FileData {
 
 	curly_cloze: boolean
 	highlights_to_cloze: boolean
-	add_context: boolean
 	add_obs_tags: boolean
 	deckFrontmatterProperty: string
 	tagsFrontmatterProperty: string

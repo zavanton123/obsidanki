@@ -18,7 +18,6 @@ export default class MyPlugin extends Plugin {
 		let settings: PluginSettings = {
 			CUSTOM_REGEXPS: {},
 			FILE_LINK_FIELDS: {},
-			CONTEXT_FIELDS: {},
 			Syntax: {
 				"Begin Inline Note": "STARTI",
 				"End Inline Note": "ENDI",
@@ -31,7 +30,6 @@ export default class MyPlugin extends Plugin {
 			Defaults: {
 				"Tag": "Obsidanki",
 				"Add File Link": false,
-				"Add Context": false,
 				"CurlyCloze": false,
 				"CurlyCloze - Highlights to Clozes": false,
 				"Add Obsidian Tags": false,

@@ -4,7 +4,6 @@ import * as AnkiConnect from './anki'
 const defaultDescs = {
 	"Tag": "The tag that the plugin automatically adds to any generated cards.",
 	"Add File Link": "Append a link to the file that generated the flashcard on the field specified in the table.",
-	"Add Context": "Append 'context' for the card, in the form of path > heading > heading etc, to the field specified in the table.",
 	"CurlyCloze": "Convert {cloze deletions} -> {{c1::cloze deletions}} on note types that have a 'Cloze' in their name.",
 	"CurlyCloze - Highlights to Clozes": "Convert ==highlights== -> {highlights} to be processed by CurlyCloze.",
 	"Add Obsidian Tags": "Interpret #tags in the fields of a note as Anki tags, removing them from the note text in Anki."
@@ -72,30 +71,6 @@ export class SettingsTab extends PluginSettingTab {
 		link_field.controlEl.className += " anki-center"
 	}
 
-	setup_context_field(note_type: string, row_cells: HTMLCollection) {
-		const plugin = (this as any).plugin
-		let context_fields_section: Record<string, string> = plugin.settings.CONTEXT_FIELDS
-		let context_field = new Setting(row_cells[3] as HTMLElement)
-			.addDropdown(
-				async dropdown => {
-					const field_names = plugin.fields_dict[note_type]
-					for (let field of field_names) {
-						dropdown.addOption(field, field)
-					}
-					dropdown.setValue(
-						context_fields_section.hasOwnProperty(note_type) ? context_fields_section[note_type] : field_names[0]
-					)
-					dropdown.onChange((value) => {
-						plugin.settings.CONTEXT_FIELDS[note_type] = value
-						plugin.saveAllData()
-					})
-				}
-			)
-		context_field.settingEl = row_cells[3] as HTMLElement
-		context_field.infoEl.remove()
-		context_field.controlEl.className += " anki-center"
-	}
-
 	create_collapsible(name: string) {
 		let {containerEl} = this;
 		let div = containerEl.createEl('div', {cls: "collapsible-item"})
@@ -123,19 +98,15 @@ export class SettingsTab extends PluginSettingTab {
 		let note_type_table = containerEl.createEl('table', {cls: "anki-settings-table"})
 		let head = note_type_table.createTHead()
 		let header_row = head.insertRow()
-		for (let header of ["Note Type", "Custom Regexp", "File Link Field", "Context Field"]) {
+		for (let header of ["Note Type", "Custom Regexp", "File Link Field"]) {
 			let th = document.createElement("th")
 			th.appendChild(document.createTextNode(header))
 			header_row.appendChild(th)
 		}
 		let main_body = note_type_table.createTBody()
-		if (!(plugin.settings.hasOwnProperty("CONTEXT_FIELDS"))) {
-			plugin.settings.CONTEXT_FIELDS = {}
-		}
 		for (let note_type of plugin.note_types) {
 			let row = main_body.insertRow()
 
-			row.insertCell()
 			row.insertCell()
 			row.insertCell()
 			row.insertCell()
@@ -145,7 +116,6 @@ export class SettingsTab extends PluginSettingTab {
 			row_cells[0].innerHTML = note_type
 			this.setup_custom_regexp(note_type, row_cells)
 			this.setup_link_field(note_type, row_cells)
-			this.setup_context_field(note_type, row_cells)
 		}
 	}
 
@@ -205,9 +175,11 @@ export class SettingsTab extends PluginSettingTab {
 		if (plugin.settings.hasOwnProperty("FOLDER_TAGS")) {
 			delete plugin.settings["FOLDER_TAGS"]
 		}
-		// To account for new add context
-		if (!(plugin.settings["Defaults"].hasOwnProperty("Add Context"))) {
-			plugin.settings["Defaults"]["Add Context"] = false
+		if (plugin.settings.hasOwnProperty("CONTEXT_FIELDS")) {
+			delete plugin.settings["CONTEXT_FIELDS"]
+		}
+		if (plugin.settings["Defaults"].hasOwnProperty("Add Context")) {
+			delete plugin.settings["Defaults"]["Add Context"]
 		}
 		// To account for new highlights to clozes
 		if (!(plugin.settings["Defaults"].hasOwnProperty("CurlyCloze - Highlights to Clozes"))) {
@@ -218,7 +190,7 @@ export class SettingsTab extends PluginSettingTab {
 			plugin.settings["Defaults"]["Add Obsidian Tags"] = false
 		}
 		for (let key of Object.keys(plugin.settings["Defaults"])) {
-			if (key === "Regex" || key === "ID Comments" || key === "Scan Directory" || key === "Deck" || key === "Scheduling Interval") {
+			if (key === "Regex" || key === "ID Comments" || key === "Scan Directory" || key === "Deck" || key === "Scheduling Interval" || key === "Add Context") {
 				continue
 			}
 			if (typeof plugin.settings["Defaults"][key] === "string") {

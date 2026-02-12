@@ -79,7 +79,7 @@ abstract class AbstractNote {
 
     abstract getFields(): Record<string, string>
 
-    parse(deck:string, url:string, frozen_fields_dict: FROZEN_FIELDS_DICT, data: FileData, context:string): AnkiConnectNoteAndID {
+    parse(deck:string, url:string, frozen_fields_dict: FROZEN_FIELDS_DICT, data: FileData): AnkiConnectNoteAndID {
         let template = JSON.parse(JSON.stringify(data.template))
 		template["modelName"] = this.note_type
 		if (this.no_note_type) {
@@ -93,10 +93,6 @@ abstract class AbstractNote {
         if (Object.keys(frozen_fields_dict).length) {
             this.formatter.format_note_with_frozen_fields(template, frozen_fields_dict)
         }
-		if (context) {
-			const context_field = data.context_fields[this.note_type]
-			template["fields"][context_field] += context
-		}
 		if (data.add_obs_tags) {
 			for (let key in template["fields"]) {
 				for (let match of template["fields"][key].matchAll(OBS_TAG_REGEXP)) {
@@ -285,7 +281,7 @@ export class RegexNote {
         return fields
 	}
 
-	parse(deck: string, url: string = "", frozen_fields_dict: FROZEN_FIELDS_DICT, data: FileData, context: string): AnkiConnectNoteAndID {
+	parse(deck: string, url: string = "", frozen_fields_dict: FROZEN_FIELDS_DICT, data: FileData): AnkiConnectNoteAndID {
 		let template = JSON.parse(JSON.stringify(data.template))
 		template["modelName"] = this.note_type
 		template["fields"] = this.getFields()
@@ -296,10 +292,6 @@ export class RegexNote {
         if (Object.keys(frozen_fields_dict).length) {
             this.formatter.format_note_with_frozen_fields(template, frozen_fields_dict)
         }
-		if (context) {
-			const context_field = data.context_fields[this.note_type]
-			template["fields"][context_field] += context
-		}
 		if (this.note_type.includes("Cloze") && !(note_has_clozes(template))) {
 			this.identifier = CLOZE_ERROR //An error code that says "don't add this note!"
 		}
