@@ -8,21 +8,16 @@ export interface PluginSettings {
 	FOLDER_DECKS: Record<string, string>,
 	FOLDER_TAGS: Record<string, string>,
 	Syntax: {
-		"Begin Note": string,
-		"End Note": string,
 		"Begin Inline Note": string,
 		"End Inline Note": string,
 		"Deck Frontmatter Property": string,
 		"Tags Frontmatter Property": string,
 		"Front Frontmatter Property": string,
 		"ID Frontmatter Property": string,
-		"ID Delete Postfix": string,
-		"Frozen Fields Line": string
+		"ID Delete Postfix": string
 	},
 	Defaults: {
 		"Tag": string,
-		"Deck": string,
-		"Scheduling Interval": number,
 		"Add File Link": boolean,
 		"Add Context": boolean,
 		"CurlyCloze": boolean,

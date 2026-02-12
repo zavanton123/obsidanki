@@ -15,7 +15,7 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
     result.folder_decks = settings.FOLDER_DECKS
     result.folder_tags = settings.FOLDER_TAGS
     result.template = {
-        deckName: toAnkiDeckName(settings.Defaults.Deck),
+        deckName: toAnkiDeckName("Default"),
         modelName: "",
         fields: {},
         options: {
@@ -26,9 +26,9 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
     }
     result.EXISTING_IDS = await AnkiConnect.invoke('findNotes', {query: ""}) as number[]
 
-    //RegExp section
-    result.FROZEN_REGEXP = new RegExp(escapeRegex(settings.Syntax["Frozen Fields Line"]) + String.raw` - (.*?):\n((?:[^\n][\n]?)+)`, "g")
-    result.NOTE_REGEXP = new RegExp(String.raw`^` + escapeRegex(settings.Syntax["Begin Note"]) + String.raw`\n([\s\S]*?\n)` + escapeRegex(settings.Syntax["End Note"]), "gm")
+    //RegExp section (Begin/End Note and Frozen Fields removed; use never-match so code paths stay intact)
+    result.FROZEN_REGEXP = /(?!)/g
+    result.NOTE_REGEXP = /(?!)/g
     result.INLINE_REGEXP = new RegExp(escapeRegex(settings.Syntax["Begin Inline Note"]) + String.raw`(.*?)` + escapeRegex(settings.Syntax["End Inline Note"]), "g")
     result.deckFrontmatterProperty = settings.Syntax["Deck Frontmatter Property"] ?? "deck"
     result.tagsFrontmatterProperty = settings.Syntax["Tags Frontmatter Property"] ?? "tags"

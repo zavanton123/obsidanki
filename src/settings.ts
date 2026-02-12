@@ -3,8 +3,6 @@ import * as AnkiConnect from './anki'
 
 const defaultDescs = {
 	"Tag": "The tag that the plugin automatically adds to any generated cards.",
-	"Deck": "The deck the plugin adds cards to if the deck frontmatter property is not set in the note.",
-	"Scheduling Interval": "The time, in minutes, between automatic scans of the vault. Set this to 0 to disable automatic scanning.",
 	"Add File Link": "Append a link to the file that generated the flashcard on the field specified in the table.",
 	"Add Context": "Append 'context' for the card, in the form of path > heading > heading etc, to the field specified in the table.",
 	"CurlyCloze": "Convert {cloze deletions} -> {{c1::cloze deletions}} on note types that have a 'Cloze' in their name.",
@@ -154,7 +152,7 @@ export class SettingsTab extends PluginSettingTab {
 	setup_syntax() {
 		let {containerEl} = this;
 		const plugin = (this as any).plugin
-		const obsoleteKeys = ["Target Deck Line", "File Tags Line", "Delete Note Line"]
+		const obsoleteKeys = ["Target Deck Line", "File Tags Line", "Delete Note Line", "Begin Note", "End Note", "Frozen Fields Line"]
 		for (const k of obsoleteKeys) {
 			if (plugin.settings["Syntax"].hasOwnProperty(k)) delete plugin.settings["Syntax"][k]
 		}
@@ -195,13 +193,15 @@ export class SettingsTab extends PluginSettingTab {
 		if (plugin.settings["Defaults"].hasOwnProperty("Scan Directory")) {
 			delete plugin.settings["Defaults"]["Scan Directory"]
 		}
+		if (plugin.settings["Defaults"].hasOwnProperty("Deck")) {
+			delete plugin.settings["Defaults"]["Deck"]
+		}
+		if (plugin.settings["Defaults"].hasOwnProperty("Scheduling Interval")) {
+			delete plugin.settings["Defaults"]["Scheduling Interval"]
+		}
 		// To account for new add context
 		if (!(plugin.settings["Defaults"].hasOwnProperty("Add Context"))) {
 			plugin.settings["Defaults"]["Add Context"] = false
-		}
-		// To account for new scheduling interval
-		if (!(plugin.settings["Defaults"].hasOwnProperty("Scheduling Interval"))) {
-			plugin.settings["Defaults"]["Scheduling Interval"] = 0
 		}
 		// To account for new highlights to clozes
 		if (!(plugin.settings["Defaults"].hasOwnProperty("CurlyCloze - Highlights to Clozes"))) {
@@ -212,7 +212,7 @@ export class SettingsTab extends PluginSettingTab {
 			plugin.settings["Defaults"]["Add Obsidian Tags"] = false
 		}
 		for (let key of Object.keys(plugin.settings["Defaults"])) {
-			if (key === "Regex" || key === "ID Comments" || key === "Scan Directory") {
+			if (key === "Regex" || key === "ID Comments" || key === "Scan Directory" || key === "Deck" || key === "Scheduling Interval") {
 				continue
 			}
 			if (typeof plugin.settings["Defaults"][key] === "string") {
@@ -236,29 +236,6 @@ export class SettingsTab extends PluginSettingTab {
 							plugin.settings["Defaults"][key] = value
 							plugin.saveAllData()
 						})
-					)
-			} else {
-				new Setting(defaults_settings)
-					.setName(key)
-					.setDesc(defaultDescs[key])
-					.addSlider(
-						slider => {
-							slider.setValue(plugin.settings["Defaults"][key])
-							.setLimits(0, 360, 5)
-							.setDynamicTooltip()
-							.onChange(async (value) => {
-								plugin.settings["Defaults"][key] = value
-								await plugin.saveAllData()
-								if (plugin.hasOwnProperty("schedule_id")) {
-									window.clearInterval(plugin.schedule_id)
-								}
-								if (value != 0) {
-									plugin.schedule_id = window.setInterval(async () => await plugin.scanVault(), value * 1000 * 60)
-									plugin.registerInterval(plugin.schedule_id)
-								}
-
-							})
-					}
 					)
 			}
 		}

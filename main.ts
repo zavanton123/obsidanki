@@ -22,21 +22,16 @@ export default class MyPlugin extends Plugin {
 			FOLDER_DECKS: {},
 			FOLDER_TAGS: {},
 			Syntax: {
-				"Begin Note": "START",
-				"End Note": "END",
 				"Begin Inline Note": "STARTI",
 				"End Inline Note": "ENDI",
 				"Deck Frontmatter Property": "deck",
 				"Tags Frontmatter Property": "tags",
 				"Front Frontmatter Property": "anki-front",
 				"ID Frontmatter Property": "anki-id",
-				"ID Delete Postfix": "-delete",
-				"Frozen Fields Line": "FROZEN"
+				"ID Delete Postfix": "-delete"
 			},
 			Defaults: {
 				"Tag": "Obsidanki",
-				"Deck": "Default",
-				"Scheduling Interval": 0,
 				"Add File Link": false,
 				"Add Context": false,
 				"CurlyCloze": false,

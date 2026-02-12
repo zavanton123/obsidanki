@@ -353,8 +353,6 @@ export class AllFile extends AbstractFile {
 
     add_spans_to_ignore() {
         this.ignore_spans = []
-        this.ignore_spans.push(...spans(this.data.FROZEN_REGEXP, this.file))
-        this.ignore_spans.push(...spans(this.data.NOTE_REGEXP, this.file))
         this.ignore_spans.push(...spans(this.data.INLINE_REGEXP, this.file))
         this.ignore_spans.push(...spans(c.OBS_INLINE_MATH_REGEXP, this.file))
         this.ignore_spans.push(...spans(c.OBS_DISPLAY_MATH_REGEXP, this.file))
@@ -440,47 +438,6 @@ export class AllFile extends AbstractFile {
             this.notes_to_add.push(parsed.note)
         }
         this.frontmatter_ids_ordered.push(parsed.identifier)
-    }
-
-    scanNotes() {
-        for (let note_match of this.file.matchAll(this.data.NOTE_REGEXP)) {
-            let [note, position]: [string, number] = [note_match[1], note_match.index + note_match[0].indexOf(note_match[1]) + note_match[1].length]
-            const frontIds = this.getFrontmatterIds()
-            const optionalId = frontIds && this.frontmatter_ids_ordered.length < frontIds.length ? frontIds[this.frontmatter_ids_ordered.length] : undefined
-            let parsed = new Note(
-                note,
-                this.data.fields_dict,
-                this.data.curly_cloze,
-                this.data.highlights_to_cloze,
-                this.formatter,
-                optionalId
-            ).parse(
-                this.target_deck,
-                this.url,
-                this.frozen_fields_dict,
-                this.data,
-                this.data.add_context ? this.getContextAtIndex(note_match.index) : ""
-            )
-            if (parsed.identifier == null) {
-                // Need to make sure global_tags get added
-                parsed.note.tags.push(...this.global_tags.split(TAG_SEP))
-                this.notes_to_add.push(parsed.note)
-                this.id_indexes.push(position)
-            } else if (!this.data.EXISTING_IDS.includes(parsed.identifier)) {
-                if (parsed.identifier == CLOZE_ERROR) {
-                    continue
-                }
-                // Need to show an error otherwise
-                else if (parsed.identifier == NOTE_TYPE_ERROR) {
-                    console.warn("Did not recognise note type ", parsed.note.modelName, " in file ", this.path)
-                } else {
-                    console.warn("Note with id", parsed.identifier, " in file ", this.path, " does not exist in Anki!")
-                }
-            } else {
-                this.notes_to_edit.push(parsed)
-            }
-            this.frontmatter_ids_ordered.push(parsed.identifier)
-        }
     }
 
     scanInlineNotes() {
@@ -577,7 +534,6 @@ export class AllFile extends AbstractFile {
         if (this.hasAnkiFrontmatter()) {
             this.scanAsBasicCard()
         } else {
-            this.scanNotes()
             this.scanInlineNotes()
             for (const note_type of Object.keys(this.custom_regexps)) {
                 const regexp_str = this.custom_regexps[note_type]
