@@ -2,7 +2,6 @@ import { PluginSettingTab, Setting, Notice, TFolder } from 'obsidian'
 import * as AnkiConnect from './anki'
 
 const defaultDescs = {
-	"Scan Directory": "The directory to scan. Leave empty to scan the entire vault",
 	"Tag": "The tag that the plugin automatically adds to any generated cards.",
 	"Deck": "The deck the plugin adds cards to if the deck frontmatter property is not set in the note.",
 	"Scheduling Interval": "The time, in minutes, between automatic scans of the vault. Set this to 0 to disable automatic scanning.",
@@ -193,9 +192,8 @@ export class SettingsTab extends PluginSettingTab {
 		const plugin = (this as any).plugin
 		let defaults_settings = containerEl.createEl('h3', {text: 'Defaults'})
 
-		// To account for new scan directory
-		if (!(plugin.settings["Defaults"].hasOwnProperty("Scan Directory"))) {
-			plugin.settings["Defaults"]["Scan Directory"] = ""
+		if (plugin.settings["Defaults"].hasOwnProperty("Scan Directory")) {
+			delete plugin.settings["Defaults"]["Scan Directory"]
 		}
 		// To account for new add context
 		if (!(plugin.settings["Defaults"].hasOwnProperty("Add Context"))) {
@@ -214,7 +212,7 @@ export class SettingsTab extends PluginSettingTab {
 			plugin.settings["Defaults"]["Add Obsidian Tags"] = false
 		}
 		for (let key of Object.keys(plugin.settings["Defaults"])) {
-			if (key === "Regex" || key === "ID Comments") {
+			if (key === "Regex" || key === "ID Comments" || key === "Scan Directory") {
 				continue
 			}
 			if (typeof plugin.settings["Defaults"][key] === "string") {
