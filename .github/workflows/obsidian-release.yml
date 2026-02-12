@@ -1,7 +1,7 @@
 name: Release Obsidian Plugin
 
 env:
-  PLUGIN_NAME: obsidian-to-anki-plugin # Change this to match the id of your plugin.
+  PLUGIN_NAME: obsidanki
 
 on:
   workflow_dispatch:

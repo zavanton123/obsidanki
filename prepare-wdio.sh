@@ -6,9 +6,9 @@ mkdir -p tests/specs_gen
 mkdir -p tests/test_outputs
 
 # Copy Built plugin
-rm -rf tests/defaults/test_vault/.obsidian/plugins/obsidian-to-anki-plugin 
-mkdir -p tests/defaults/test_vault/.obsidian/plugins/obsidian-to-anki-plugin 
-cp manifest.json styles.css main.js tests/defaults/test_vault/.obsidian/plugins/obsidian-to-anki-plugin/
+rm -rf tests/defaults/test_vault/.obsidian/plugins/obsidanki 
+mkdir -p tests/defaults/test_vault/.obsidian/plugins/obsidanki 
+cp manifest.json styles.css main.js tests/defaults/test_vault/.obsidian/plugins/obsidanki/
 
 # Setup docker volumes
 rm -rf tests/test_vault 

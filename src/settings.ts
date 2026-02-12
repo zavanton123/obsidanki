@@ -220,7 +220,7 @@ export class SettingsTab extends PluginSettingTab {
 		containerEl.empty()
 		containerEl.createEl('h2', {text: 'Obsidanki settings'})
 		containerEl.createEl('a', {text: 'For more information check the wiki', href: "https://github.com/zavanton123/obsidanki/wiki"})
-		containerEl.createEl('br')
+		containerEl.createEl('h2', {text: ''})
 		this.setup_syntax()
 		this.setup_defaults()
 		this.setup_buttons()
