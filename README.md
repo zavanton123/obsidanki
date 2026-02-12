@@ -1,23 +1,19 @@
 # Obsidanki
-Plugin to add flashcards from a text or markdown file to Anki. Run in Obsidian as a plugin, or from the command-line as a python script. Built with [Obsidian](https://obsidian.md/) markdown syntax in mind. Supports **user-defined custom syntax for flashcards.**  
-See the [Trello](https://trello.com/b/6MXEizGg/obsidiantoanki) for planned features.
 
-## Getting started
+Obsidian plugin that syncs markdown notes to Anki as flashcards. Uses frontmatter and optional inline syntax. **Separate from the original Obsidian_to_Anki** (plugin id: `obsidanki`), so you can install both in the same vault if needed.
 
-Check out the [Wiki](https://github.com/zavanton123/obsidanki/wiki)! It has a ton of information, including setup instructions for new users. I will include a copy of the instructions here:
+## Requirements
+
+- [Obsidian](https://obsidian.md/)
+- [Anki](https://apps.ankiweb.net/) with [AnkiConnect](https://git.foosoft.net/alex/anki-connect)
 
 ## Setup
 
-### All users
-1. Start up [Anki](https://apps.ankiweb.net/), and navigate to your desired profile.
-2. Ensure that you've installed [AnkiConnect](https://git.foosoft.net/alex/anki-connect).
+1. Install Anki and AnkiConnect; open your desired Anki profile.
+2. In Anki: **Tools → Add-ons → AnkiConnect → Config**. Set `webCorsOriginList` to include `app://obsidian.md` and `http://localhost`, e.g.:
 
-### Obsidian plugin users
-3. Have [Obsidian](https://obsidian.md/) downloaded
-4. Search the 'Community plugins' list for this plugin
-5. Install the plugin.
-6. In Anki, navigate to Tools->Addons->AnkiConnect->Config, and change it to look like this:
-<pre>
+*_-_
+json
 {
     "apiKey": null,
     "apiLogPath": null,
@@ -29,104 +25,99 @@ Check out the [Wiki](https://github.com/zavanton123/obsidanki/wiki)! It has a to
         "app://obsidian.md"
     ]
 }
-</pre>
+*_-_
 
-7. Restart Anki to apply the above changes
-8. With Anki running in the background, load the plugin. This will generate the plugin settings.
+3. Restart Anki.
+4. In Obsidian: **Settings → Community plugins → Browse**, search for **Obsidanki** (or install manually from releases), enable it.
+5. With Anki running, open Obsidanki settings once so the plugin can fetch note types from Anki.
 
+To sync: use the **Anki icon** on the left ribbon or the **Scan Vault** command. The plugin scans the **entire vault** (no scan-directory setting).
 
-You shouldn't need Anki running to load Obsidian in the future, though of course you will need it for using the plugin!
+---
 
-To run the plugin, look for an Anki icon on your ribbon (the place where buttons such as 'open Graph view' and 'open Quick Switcher' are).
-For more information on use, please check out the [Wiki](https://github.com/zavanton123/obsidanki/wiki)!
+## How flashcards are created
 
-### Python script users
-3. Install the latest version of [Python](https://www.python.org/downloads/).
-4. If you are a new user, download `obstoanki_setup.py` from the [releases page](https://github.com/zavanton123/obsidanki/releases), and place it in the folder you want the script installed (for example your notes folder).  
-5. Run `obstoanki_setup.py`, for example by double-clicking it in a file explorer. This will download the latest version of the script and required dependencies automatically. Existing users should be able to run their existing `obstoanki_setup.py` to get the latest version of the script.  
-6. Check the Permissions tab below to ensure the script is able to run.
-7. Run `obsidian_to_anki.py`, for example by double-clicking it in a file explorer. This will generate a config file, `obsidian_to_anki_config.ini`.
+### 1. One Basic card per note (frontmatter deck)
 
-#### Permissions
-The script needs to be able to:
-* Make a config file in the directory the script is installed.
-* Read the file in the directory the script is used.
-* Make a backup file in the directory the script is used.
-* Rename files in the directory the script is used.
-* Remove a backup file in the directory the script is used.
-* Change the current working directory temporarily (so that local image paths are resolved correctly).
+If a note has the **deck** property in its frontmatter, the note becomes **one Basic card**:
+
+- **Front**: Note name (file name without `.md`), or the value of **anki-front** in frontmatter if set.
+- **Back**: Note body **without** the frontmatter block and **without** the first `# Heading` line (formatted as HTML).
+
+**Example note** `My Topic.md`:
+
+*_-_
+deck: "Learning/Science"
+tags: [biology, review]
+anki-front: "What is photosynthesis?"
+*_-_
+
+# Photosynthesis
+
+Photosynthesis is the process...
+
+→ One Basic card: front = "What is photosynthesis?", back = "Photosynthesis is the process..." (HTML).
+
+### 2. Inline notes (any note type)
+
+Use the inline markers (default **STARTI** and **ENDI**; configurable in settings). Format:
+
+`STARTI [NoteType] FrontContent BackContent ENDI`
+
+- **NoteType** must match an Anki note type (e.g. `Basic`, `Cloze`).
+- For **Cloze**, all of these work: `{{c1::cloze}}`, `{cloze}`, `==cloze==`.
+
+**Examples:**
+
+- Basic: `STARTI [Basic] Capital of France Paris ENDI`
+- Cloze: `STARTI [Cloze] The capital is {{c1::Paris}}. ENDI` or `{Paris}` or `==Paris==`
+- Optional: add `Tags: tag1 tag2` and `ID: 123` at the end for sync/edits.
+
+---
+
+## Frontmatter
+
+| Property (default name) | Purpose |
+|-------------------------|--------|
+| **deck** (Anki Deck Property) | **Required** for creating a Basic card from the note. Value is the target Anki deck. |
+| **tags** (Anki Tags Property) | Tags applied to the card(s). Array or space-separated string. |
+| **anki-front** (Anki Card Front Property) | Override for the Basic card front; if missing, note name is used. |
+| **anki-id** (Anki Card ID Property) | Sync ID written back after adding to Anki. To delete the note in Anki, set e.g. `anki-id: 123-delete` (with your configured delete postfix). |
+
+**Hierarchical deck/tags:** Use slashes in frontmatter (e.g. `deck: "Learning/Science"`). The plugin sends them to Anki with `::` (e.g. `Learning::Science`).
+
+Property **names** can be changed in **Settings → Obsidanki → Syntax Settings** (Anki Deck Property, Anki Tags Property, etc.).
+
+---
+
+## Settings
+
+- **Syntax Settings** – Frontmatter property names and inline markers (Begin/End Inline Note, ID Delete Postfix).
+- **Defaults** – Default tag added to new cards (default: empty), and **Add File Link** (default: on) to append an Obsidian link to the card.
+- **Actions** – Clear Media Cache; Clear File Hash Cache.
+- **Ignored File Settings** – Glob patterns so certain files are not scanned (e.g. `**/*.excalidraw.md`, `Templates/**`). See [glob syntax](https://en.wikipedia.org/wiki/Glob_(programming)#Syntax); you can test patterns at [globster.xyz](https://globster.xyz/).
+
+---
 
 ## Features
 
-Current features (check out the wiki for more details):
-* **Custom note types** - You're not limited to the 6 built-in note types of Anki.
-* **Custom scan directory** 
-  * The plugin will scan the entire vault by default
-  * You can also set which directory (includes all sub-directories as well) to scan via plugin settings
-* **Ignore Folders and Files**
-  * You can specify which files and folders to ignore 
-  * This can be done in the settings of this plugin with [Glob syntax](https://en.wikipedia.org/wiki/Glob_(programming)#Syntax).
-  * If you're working on your own globs, you can test them out [here](https://globster.xyz/)
-  * Examples:
-    * `**/*.excalidraw.md` - Ignore all files that end in `.excalidraw.md`
-      * => avoids excalidraw files from being scanned which can be extremely slow
-    * `Template/**` - Ignore all files in the `Template` folder (including subfolders)
-    * `**/private/**` - Ignore all files in folders that are called `private` no matter where they are in the vault
-    * `[Pp]rivate*/**` - Ignore all files and folders in the root of the vault that start with `private` or with `Private`
-* **Updating notes from file** - Your text files are the canonical source of the notes.
-* **Tags**, including **tags for an entire file**.
-* **Adding to user-specified deck** on a *per-file* basis.
-* **Markdown formatting**.
-* **Math formatting**.
-* **Embedded images**. GIFs should work too.
-* **Audio**.
-* **Auto-deleting notes from the file**.
-* **Reading from all files in a directory automatically** - recursively too!
-* **Inline Notes** - Shorter syntax for typing out notes on a single line.
-* **Easy cloze formatting** - A more compact syntax to do Cloze text
-* **Frozen Fields**
-* **Obsidian integration** - A link to the file that made the flashcard, full link and image embed support.
-* **Custom syntax** - Using **regular expressions**, add custom syntax to generate **notes that make sense for you.** Some examples:
-  * RemNote single-line style. `This is how to use::Remnote single-line style`  
-  ![Remnote 1](Images/Remnote_1.png)
-  * Header paragraph style.
-  <pre>
-  # Style
-  This style is suitable for having the header as the front, and the answer as the back
-  </pre>  
-  ![Header 1](Images/Header_1.png)
-  * Question answer style.
-  <pre>
-  Q: How do you use this style?
-  A: Just like this.
-  </pre>  
-  ![Question 1](Images/Question_1.png)
-  * Neuracache #flashcard style.  
-  <pre>
-  In Neuracache style, to make a flashcard you do #flashcard
-  The next lines then become the back of the flashcard
-  </pre>  
-  ![Neuracache 1](Images/Neuracache_1.png)
-  * Ruled style  
-  <pre>
-  How do you use ruled style?
-  ---
-  You need at least three '-' between the front and back of the card.
-  </pre>  
-  ![Ruled 1](Images/Ruled_1.png)
-  * Markdown table style  
-  <pre>
-  | Why might this style be useful? |
-  | ------ |
-  | It looks nice when rendered as HTML in a markdown editor. |
-  </pre>
-  ![Table 2](Images/Table_2.png)
-  * Cloze paragraph style  
-  <pre>
-  The idea of {cloze paragraph style} is to be able to recognise any paragraphs that contain {cloze deletions}.
-  </pre>
-  ![Cloze 1](Images/Cloze_1.png)
+- **One Basic card per note** when `deck` is set in frontmatter (front = note name or anki-front, back = body without frontmatter and first H1).
+- **Inline notes** for any Anki note type (Basic, Cloze, etc.) with `STARTI [Type] ... ENDI`.
+- **Cloze support**: `{{c1::...}}`, `{...}`, `==...==` in Cloze inline notes.
+- **Deck and tags** from frontmatter; hierarchical format (slash in frontmatter → `::` in Anki).
+- **Sync and delete**: anki-id in frontmatter for updates; anki-id with delete postfix for deletion.
+- **Ignore files** via glob patterns.
+- **Markdown, math, images, audio, links** in note content (rendered in Anki).
+- **File link**: optional link back to the Obsidian note on the card.
 
-Note that **all custom syntax is off by default**, and must be programmed into the script via the config file - see the Wiki for more details.
+---
 
-<a href='https://ko-fi.com/K3K52X4L6' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://cdn.ko-fi.com/cdn/kofi1.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+## Manual install
+
+1. Download the latest `obsidanki.zip` from [Releases](https://github.com/zavanton123/obsidanki/releases).
+2. Unzip into your vault’s `.obsidian/plugins/` folder so that the folder is named **obsidanki** (and contains `main.js`, `manifest.json`, `styles.css`).
+3. Enable **Obsidanki** in **Settings → Community plugins**.
+
+---
+
+For more detail and examples, see the [Wiki](https://github.com/zavanton123/obsidanki/wiki).

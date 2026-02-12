@@ -1,10 +1,9 @@
 ---
-name: Custom syntax request
-about: Request to add custom flashcard syntax to regex.md
+name: Feature / syntax request
+about: Request a new feature or change to how Obsidanki creates or syncs cards
 title: ''
 labels: ''
 assignees: ''
 
 ---
-
 
