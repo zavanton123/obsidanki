@@ -3,10 +3,7 @@ import * as AnkiConnect from './anki'
 
 const defaultDescs = {
 	"Tag": "The tag that the plugin automatically adds to any generated cards.",
-	"Add File Link": "Append a link to the file that generated the flashcard on the field specified in the table.",
-	"CurlyCloze": "Convert {cloze deletions} -> {{c1::cloze deletions}} on note types that have a 'Cloze' in their name.",
-	"CurlyCloze - Highlights to Clozes": "Convert ==highlights== -> {highlights} to be processed by CurlyCloze.",
-	"Add Obsidian Tags": "Interpret #tags in the fields of a note as Anki tags, removing them from the note text in Anki."
+	"Add File Link": "Append a link to the file that generated the flashcard on the field specified in the table."
 }
 
 export const DEFAULT_IGNORED_FILE_GLOBS = [
@@ -181,16 +178,17 @@ export class SettingsTab extends PluginSettingTab {
 		if (plugin.settings["Defaults"].hasOwnProperty("Add Context")) {
 			delete plugin.settings["Defaults"]["Add Context"]
 		}
-		// To account for new highlights to clozes
-		if (!(plugin.settings["Defaults"].hasOwnProperty("CurlyCloze - Highlights to Clozes"))) {
-			plugin.settings["Defaults"]["CurlyCloze - Highlights to Clozes"] = false
+		if (plugin.settings["Defaults"].hasOwnProperty("CurlyCloze")) {
+			delete plugin.settings["Defaults"]["CurlyCloze"]
 		}
-		// To account for new add obsidian tags
-		if (!(plugin.settings["Defaults"].hasOwnProperty("Add Obsidian Tags"))) {
-			plugin.settings["Defaults"]["Add Obsidian Tags"] = false
+		if (plugin.settings["Defaults"].hasOwnProperty("CurlyCloze - Highlights to Clozes")) {
+			delete plugin.settings["Defaults"]["CurlyCloze - Highlights to Clozes"]
+		}
+		if (plugin.settings["Defaults"].hasOwnProperty("Add Obsidian Tags")) {
+			delete plugin.settings["Defaults"]["Add Obsidian Tags"]
 		}
 		for (let key of Object.keys(plugin.settings["Defaults"])) {
-			if (key === "Regex" || key === "ID Comments" || key === "Scan Directory" || key === "Deck" || key === "Scheduling Interval" || key === "Add Context") {
+			if (key === "Regex" || key === "ID Comments" || key === "Scan Directory" || key === "Deck" || key === "Scheduling Interval" || key === "Add Context" || key === "CurlyCloze" || key === "CurlyCloze - Highlights to Clozes" || key === "Add Obsidian Tags") {
 				continue
 			}
 			if (typeof plugin.settings["Defaults"][key] === "string") {

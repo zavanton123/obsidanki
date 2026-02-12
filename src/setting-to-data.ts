@@ -34,10 +34,7 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
     result.idDeletePostfix = settings.Syntax["ID Delete Postfix"] ?? "-delete"
 
     //Just a simple transfer
-    result.curly_cloze = settings.Defaults.CurlyCloze
-    result.highlights_to_cloze = settings.Defaults["CurlyCloze - Highlights to Clozes"]
     result.add_file_link = settings.Defaults["Add File Link"]
-    result.add_obs_tags = settings.Defaults["Add Obsidian Tags"]
     result.ignored_file_globs = settings.IGNORED_FILE_GLOBS ?? [];
 
     return result

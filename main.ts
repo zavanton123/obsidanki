@@ -30,9 +30,6 @@ export default class MyPlugin extends Plugin {
 			Defaults: {
 				"Tag": "Obsidanki",
 				"Add File Link": false,
-				"CurlyCloze": false,
-				"CurlyCloze - Highlights to Clozes": false,
-				"Add Obsidian Tags": false,
 			},
 			IGNORED_FILE_GLOBS: DEFAULT_IGNORED_FILE_GLOBS,
 		}

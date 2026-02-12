@@ -17,7 +17,6 @@ const FRONTMATTER_REGEXP = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/
 const ID_ONLY_LINE_REGEXP = /^\s*(?:<!--)?ID: \d+(?:-->)?\s*$/
 /** First H1 line (for stripping from back content when creating file-as-card). */
 const H1_LINE_REGEXP = /^#\s+.+$/m
-const OBS_TAG_REGEXP = /#(\w+)/g
 
 function setFrontmatterAnkiIds(content: string, id: number, propName: string): string {
     const key = propName + ":"
@@ -163,8 +162,6 @@ abstract class AbstractFile {
             const parsed_fields: Record<string, string> = new Note(
                 virtual_note,
                 this.data.fields_dict,
-                this.data.curly_cloze,
-                this.data.highlights_to_cloze,
                 this.formatter
             ).getFields()
             frozen_fields_dict[note_type] = parsed_fields
@@ -367,7 +364,7 @@ export class AllFile extends AbstractFile {
             ? String(frontFromFm).trim()
             : this.getNoteNameFromPath()
         const backRaw = this.getBodyWithoutFrontmatterAndH1()
-        const backFormatted = this.formatter.format(backRaw, this.data.curly_cloze, this.data.highlights_to_cloze)
+        const backFormatted = this.formatter.format(backRaw, false, false)
 
         const template = JSON.parse(JSON.stringify(this.data.template)) as AnkiConnectNote
         template.modelName = BASIC
@@ -384,14 +381,6 @@ export class AllFile extends AbstractFile {
         }
         if (Object.keys(this.frozen_fields_dict).length && this.frozen_fields_dict[BASIC]) {
             this.formatter.format_note_with_frozen_fields(template, this.frozen_fields_dict)
-        }
-        if (this.data.add_obs_tags) {
-            for (const key of Object.keys(template.fields)) {
-                for (const match of template.fields[key].matchAll(OBS_TAG_REGEXP)) {
-                    template.tags.push(match[1])
-                }
-                template.fields[key] = template.fields[key].replace(OBS_TAG_REGEXP, "")
-            }
         }
 
         const optionalId = this.getFrontmatterIds()?.[0] ?? null
@@ -417,8 +406,6 @@ export class AllFile extends AbstractFile {
             let parsed = new InlineNote(
                 note,
                 this.data.fields_dict,
-                this.data.curly_cloze,
-                this.data.highlights_to_cloze,
                 this.formatter,
                 optionalId
             ).parse(
@@ -460,7 +447,7 @@ export class AllFile extends AbstractFile {
                     const optionalId = frontIds && this.frontmatter_ids_ordered.length < frontIds.length ? frontIds[this.frontmatter_ids_ordered.length] : undefined
                     const parsed: AnkiConnectNoteAndID = new RegexNote(
                         match, note_type, this.data.fields_dict,
-                        search_tags, search_id, this.data.curly_cloze, this.data.highlights_to_cloze, this.formatter,
+                        search_tags, search_id, this.formatter,
                         optionalId
                     ).parse(
                         this.target_deck,

@@ -15,10 +15,7 @@ export interface PluginSettings {
 	},
 	Defaults: {
 		"Tag": string,
-		"Add File Link": boolean,
-		"CurlyCloze": boolean,
-		"CurlyCloze - Highlights to Clozes": boolean,
-		"Add Obsidian Tags": boolean
+		"Add File Link": boolean
 	},
 	IGNORED_FILE_GLOBS:string[]
 }
@@ -36,9 +33,6 @@ export interface FileData {
 	NOTE_REGEXP: RegExp
 	INLINE_REGEXP: RegExp
 
-	curly_cloze: boolean
-	highlights_to_cloze: boolean
-	add_obs_tags: boolean
 	deckFrontmatterProperty: string
 	tagsFrontmatterProperty: string
 	frontFrontmatterProperty: string
