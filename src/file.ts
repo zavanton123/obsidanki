@@ -197,14 +197,12 @@ abstract class AbstractFile {
         this.global_tags = ""
     }
 
-    /** True when frontmatter has anki-deck or anki-tags (file should become one Basic card). */
+    /** True when frontmatter has anki-deck (file should become one Basic card). anki-tags alone does not trigger creation. */
     hasAnkiFrontmatter(): boolean {
         const fm = this.file_cache?.frontmatter
         if (fm == null) return false
         const deckProp = this.data.deckFrontmatterProperty
-        const tagsProp = this.data.tagsFrontmatterProperty
-        return (deckProp != null && fm[deckProp] !== undefined) ||
-            (tagsProp != null && fm[tagsProp] !== undefined)
+        return deckProp != null && fm[deckProp] !== undefined
     }
 
     /** Note name from path: basename without .md extension. */
