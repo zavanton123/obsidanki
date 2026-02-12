@@ -12,62 +12,6 @@ export const DEFAULT_IGNORED_FILE_GLOBS = [
 
 export class SettingsTab extends PluginSettingTab {
 
-	setup_custom_regexp(note_type: string, row_cells: HTMLCollection) {
-		const plugin = (this as any).plugin
-		let regexp_section = plugin.settings["CUSTOM_REGEXPS"]
-		let custom_regexp = new Setting(row_cells[1] as HTMLElement)
-			.addText(
-					text => text.setValue(
-					regexp_section.hasOwnProperty(note_type) ? regexp_section[note_type] : ""
-					)
-					.onChange((value) => {
-						plugin.settings["CUSTOM_REGEXPS"][note_type] = value
-						plugin.saveAllData()
-					})
-			)
-		custom_regexp.settingEl = row_cells[1] as HTMLElement
-		custom_regexp.infoEl.remove()
-		custom_regexp.controlEl.className += " anki-center"
-	}
-
-	setup_link_field(note_type: string, row_cells: HTMLCollection) {
-		const plugin = (this as any).plugin
-		let link_fields_section = plugin.settings.FILE_LINK_FIELDS
-		let link_field = new Setting(row_cells[2] as HTMLElement)
-			.addDropdown(
-				async dropdown => {
-					if (!(plugin.fields_dict[note_type])) {
-						plugin.fields_dict = await plugin.loadFieldsDict()
-						if (Object.keys(plugin.fields_dict).length != plugin.note_types.length) {
-							new Notice('Need to connect to Anki to generate fields dictionary...')
-							try {
-								plugin.fields_dict = await plugin.generateFieldsDict()
-								new Notice("Fields dictionary successfully generated!")
-							}
-							catch(e) {
-								new Notice("Couldn't connect to Anki! Check console for error message.")
-								return
-							}
-						}
-					}
-					const field_names = plugin.fields_dict[note_type]
-					for (let field of field_names) {
-						dropdown.addOption(field, field)
-					}
-					dropdown.setValue(
-						link_fields_section.hasOwnProperty(note_type) ? link_fields_section[note_type] : field_names[0]
-					)
-					dropdown.onChange((value) => {
-						plugin.settings.FILE_LINK_FIELDS[note_type] = value
-						plugin.saveAllData()
-					})
-				}
-			)
-		link_field.settingEl = row_cells[2] as HTMLElement
-		link_field.infoEl.remove()
-		link_field.controlEl.className += " anki-center"
-	}
-
 	create_collapsible(name: string) {
 		let {containerEl} = this;
 		let div = containerEl.createEl('div', {cls: "collapsible-item"})
@@ -85,35 +29,6 @@ export class SettingsTab extends PluginSettingTab {
 				content.style.display = "block"
 			}
 		})
-	}
-
-	setup_note_table() {
-		let {containerEl} = this;
-		const plugin = (this as any).plugin
-		containerEl.createEl('h3', {text: 'Note type settings'})
-		this.create_collapsible("Note Type Table")
-		let note_type_table = containerEl.createEl('table', {cls: "anki-settings-table"})
-		let head = note_type_table.createTHead()
-		let header_row = head.insertRow()
-		for (let header of ["Note Type", "Custom Regexp", "File Link Field"]) {
-			let th = document.createElement("th")
-			th.appendChild(document.createTextNode(header))
-			header_row.appendChild(th)
-		}
-		let main_body = note_type_table.createTBody()
-		for (let note_type of plugin.note_types) {
-			let row = main_body.insertRow()
-
-			row.insertCell()
-			row.insertCell()
-			row.insertCell()
-
-			let row_cells = row.children
-
-			row_cells[0].innerHTML = note_type
-			this.setup_custom_regexp(note_type, row_cells)
-			this.setup_link_field(note_type, row_cells)
-		}
 	}
 
 	setup_syntax() {
@@ -239,38 +154,6 @@ export class SettingsTab extends PluginSettingTab {
 		const plugin = (this as any).plugin
 		let action_buttons = containerEl.createEl('h3', {text: 'Actions'})
 		new Setting(action_buttons)
-			.setName("Regenerate Note Type Table")
-			.setDesc("Connect to Anki to regenerate the table with new note types, or get rid of deleted note types.")
-			.addButton(
-				button => {
-					button.setButtonText("Regenerate").setClass("mod-cta")
-					.onClick(async () => {
-						new Notice("Need to connect to Anki to update note types...")
-						try {
-							plugin.note_types = await AnkiConnect.invoke('modelNames')
-							plugin.regenerateSettingsRegexps()
-							plugin.fields_dict = await plugin.loadFieldsDict()
-							if (Object.keys(plugin.fields_dict).length != plugin.note_types.length) {
-								new Notice('Need to connect to Anki to generate fields dictionary...')
-								try {
-									plugin.fields_dict = await plugin.generateFieldsDict()
-									new Notice("Fields dictionary successfully generated!")
-								}
-								catch(e) {
-									new Notice("Couldn't connect to Anki! Check console for error message.")
-									return
-								}
-							}
-							await plugin.saveAllData()
-							this.setup_display()
-							new Notice("Note types updated!")
-						} catch(e) {
-							new Notice("Couldn't connect to Anki! Check console for details.")
-						}
-					})
-				}
-			)
-		new Setting(action_buttons)
 			.setName("Clear Media Cache")
 			.setDesc(`Clear the cached list of media filenames that have been added to Anki.
 
@@ -337,7 +220,6 @@ export class SettingsTab extends PluginSettingTab {
 		containerEl.empty()
 		containerEl.createEl('h2', {text: 'Obsidanki settings'})
 		containerEl.createEl('a', {text: 'For more information check the wiki', href: "https://github.com/zavanton123/obsidanki/wiki"})
-		this.setup_note_table()
 		this.setup_syntax()
 		this.setup_defaults()
 		this.setup_buttons()
