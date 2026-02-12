@@ -5,6 +5,7 @@ import { AllFile } from './file'
 import * as AnkiConnect from './anki'
 import { basename } from 'path'
 import multimatch from "multimatch"
+import { toAnkiDeckName } from './constants'
 interface addNoteResponse {
     result: number,
     error: string | null
@@ -98,11 +99,11 @@ export class FileManager {
         for (let folder of folder_path_list) {
             // Loops over them from innermost folder
             if (folder_decks[folder.path]) {
-                return folder_decks[folder.path]
+                return toAnkiDeckName(folder_decks[folder.path])
             }
         }
         // If no decks specified
-        return this.data.template.deckName
+        return toAnkiDeckName(this.data.template.deckName)
     }
 
     getDefaultTags(file: TFile, folder_path_list: TFolder[]): string[] {

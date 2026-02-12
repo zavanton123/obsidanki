@@ -176,10 +176,10 @@ abstract class AbstractFile {
         const prop = this.data.deckFrontmatterProperty
         const frontmatterDeck = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
         if (frontmatterDeck != null && frontmatterDeck !== "") {
-            this.target_deck = String(frontmatterDeck)
+            this.target_deck = c.toAnkiDeckName(String(frontmatterDeck))
             return
         }
-        this.target_deck = this.data.template["deckName"]
+        this.target_deck = c.toAnkiDeckName(this.data.template["deckName"])
     }
 
     setup_global_tags() {

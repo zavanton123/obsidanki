@@ -11,3 +11,8 @@ export function escapeRegex(str: string): string {
     // Got from stackoverflow - https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
     return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
+
+/** Convert hierarchical deck name (e.g. "cs/java/types") to Anki format ("cs::java::types"). */
+export function toAnkiDeckName(deckName: string): string {
+    return String(deckName).replace(/\//g, "::")
+}

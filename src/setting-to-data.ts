@@ -1,7 +1,7 @@
 import { PluginSettings, ParsedSettings } from './interfaces/settings-interface'
 import { App } from 'obsidian'
 import * as AnkiConnect from './anki'
-import { escapeRegex } from './constants'
+import { escapeRegex, toAnkiDeckName } from './constants'
 
 export async function settingToData(app: App, settings: PluginSettings, fields_dict: Record<string, string[]>): Promise<ParsedSettings> {
     let result: ParsedSettings = <ParsedSettings>{}
@@ -15,7 +15,7 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
     result.folder_decks = settings.FOLDER_DECKS
     result.folder_tags = settings.FOLDER_TAGS
     result.template = {
-        deckName: settings.Defaults.Deck,
+        deckName: toAnkiDeckName(settings.Defaults.Deck),
         modelName: "",
         fields: {},
         options: {
