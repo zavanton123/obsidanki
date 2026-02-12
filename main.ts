@@ -28,8 +28,8 @@ export default class MyPlugin extends Plugin {
 				"ID Delete Postfix": "-delete"
 			},
 			Defaults: {
-				"Tag": "Obsidanki",
-				"Add File Link": false,
+				"Tag": "",
+				"Add File Link": true,
 			},
 			IGNORED_FILE_GLOBS: DEFAULT_IGNORED_FILE_GLOBS,
 		}
