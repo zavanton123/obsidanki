@@ -16,3 +16,8 @@ export function escapeRegex(str: string): string {
 export function toAnkiDeckName(deckName: string): string {
     return String(deckName).replace(/\//g, "::")
 }
+
+/** Convert hierarchical tag (e.g. "cs/java") to Anki format ("cs::java"). */
+export function toAnkiTagName(tag: string): string {
+    return String(tag).replace(/\//g, "::")
+}

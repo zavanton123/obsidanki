@@ -187,9 +187,10 @@ abstract class AbstractFile {
         const frontmatterTags = prop && this.file_cache?.frontmatter != null && this.file_cache.frontmatter[prop]
         if (frontmatterTags != null) {
             if (Array.isArray(frontmatterTags)) {
-                this.global_tags = frontmatterTags.map((t: unknown) => String(t)).join(TAG_SEP)
+                this.global_tags = frontmatterTags.map((t: unknown) => c.toAnkiTagName(String(t))).join(TAG_SEP)
             } else {
-                this.global_tags = String(frontmatterTags)
+                const parts = String(frontmatterTags).split(TAG_SEP).map((s) => s.trim()).filter(Boolean)
+                this.global_tags = parts.map((s) => c.toAnkiTagName(s)).join(TAG_SEP)
             }
             return
         }
