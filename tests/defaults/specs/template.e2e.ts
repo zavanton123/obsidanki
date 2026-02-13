@@ -46,6 +46,14 @@ describe(test_name_fmt, () => {
 
             if (fse.pathExistsSync(`tests/defaults/test_vault_suites/${test_name}/.obsidian`))
                 fse.copySync(`tests/defaults/test_vault_suites/${test_name}/.obsidian`, `tests/test_vault/.obsidian`, { overwrite: true });
+            // Plugin id is obsidanki: ensure plugin bundle and data are under .obsidian/plugins/obsidanki
+            fse.ensureDirSync('tests/test_vault/.obsidian/plugins/obsidanki');
+            fse.copySync('main.js', 'tests/test_vault/.obsidian/plugins/obsidanki/main.js', { overwrite: true });
+            fse.copySync('manifest.json', 'tests/test_vault/.obsidian/plugins/obsidanki/manifest.json', { overwrite: true });
+            fse.copySync('styles.css', 'tests/test_vault/.obsidian/plugins/obsidanki/styles.css', { overwrite: true });
+            const legacyData = `tests/defaults/test_vault_suites/${test_name}/.obsidian/plugins/obsidian-to-anki-plugin/data.json`;
+            if (fse.pathExistsSync(legacyData))
+                fse.copySync(legacyData, 'tests/test_vault/.obsidian/plugins/obsidanki/data.json', { overwrite: true });
           
             fse.writeFile('tests/test_config/reset_perms', 'meow', (err) => {
                 if (err)
@@ -146,19 +154,19 @@ describe(test_name_fmt, () => {
     })
 
     it('should have Anki card IDs in Obsidian note', async () => {
-        const test_vault = path.join(__dirname,`./../test_vault/${test_name}/**/*.md`) //${test_name}
-
         const ID_REGEXP_STR = /\n?(?:<!--)?(?:ID: (\d+).*?)/g;
         const ID_REGEXP_STR_CARD = /<!-- CARD -->/g;
+        const ANKI_ID_FM = /anki-id:\s*\d+/;
 
         const files = await glob('tests/test_vault/**/*.md')
 
         for (const file of files)
         {
             const filePostTest = fse.readFileSync(file, 'utf-8');
-            
-            let number_of_cards = (filePostTest.match(ID_REGEXP_STR) || []).length;
-            let number_of_test_cards = (filePostTest.match(ID_REGEXP_STR_CARD) || []).length;
+            const bodyIds = (filePostTest.match(ID_REGEXP_STR) || []).length;
+            const frontmatterId = ANKI_ID_FM.test(filePostTest) ? 1 : 0;
+            const number_of_cards = bodyIds + frontmatterId;
+            const number_of_test_cards = (filePostTest.match(ID_REGEXP_STR_CARD) || []).length;
 
             console.log(`Number of cards in test file ${file} are - ${number_of_cards}, number_of_test_cards - ${number_of_test_cards}`);
             
