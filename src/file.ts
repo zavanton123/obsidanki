@@ -319,8 +319,7 @@ export class AllFile extends AbstractFile {
 
     add_spans_to_ignore() {
         this.ignore_spans = []
-        const inlineRe = new RegExp(this.data.INLINE_REGEXP.source, this.data.INLINE_REGEXP.flags)
-        this.ignore_spans.push(...spans(inlineRe, this.file))
+        this.ignore_spans.push(...spans(this.data.INLINE_REGEXP, this.file))
         this.ignore_spans.push(...spans(c.OBS_INLINE_MATH_REGEXP, this.file))
         this.ignore_spans.push(...spans(c.OBS_DISPLAY_MATH_REGEXP, this.file))
         this.ignore_spans.push(...spans(c.OBS_CODE_REGEXP, this.file))
@@ -400,8 +399,7 @@ export class AllFile extends AbstractFile {
     }
 
     scanInlineNotes() {
-        const inlineRe = new RegExp(this.data.INLINE_REGEXP.source, this.data.INLINE_REGEXP.flags)
-        for (let note_match of this.file.matchAll(inlineRe)) {
+        for (let note_match of this.file.matchAll(this.data.INLINE_REGEXP)) {
             let [note, position]: [string, number] = [note_match[1], note_match.index + note_match[0].indexOf(note_match[1]) + note_match[1].length]
             const frontIds = this.getFrontmatterIds()
             const optionalId = frontIds && this.frontmatter_ids_ordered.length < frontIds.length ? frontIds[this.frontmatter_ids_ordered.length] : undefined

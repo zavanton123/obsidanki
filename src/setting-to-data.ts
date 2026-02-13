@@ -26,9 +26,7 @@ export async function settingToData(app: App, settings: PluginSettings, fields_d
     //RegExp section (Begin/End Note and Frozen Fields removed; use never-match so code paths stay intact)
     result.FROZEN_REGEXP = /(?!)/g
     result.NOTE_REGEXP = /(?!)/g
-    const beginInline = (settings.Syntax["Begin Inline Note"] ?? "STARTI").trim() || "STARTI"
-    const endInline = (settings.Syntax["End Inline Note"] ?? "ENDI").trim() || "ENDI"
-    result.INLINE_REGEXP = new RegExp(escapeRegex(beginInline) + String.raw`([\s\S]*?)` + escapeRegex(endInline), "g")
+    result.INLINE_REGEXP = new RegExp(escapeRegex(settings.Syntax["Begin Inline Note"]) + String.raw`(.*?)` + escapeRegex(settings.Syntax["End Inline Note"]), "g")
     result.deckFrontmatterProperty = settings.Syntax["Anki Deck Property"] ?? "deck"
     result.tagsFrontmatterProperty = settings.Syntax["Anki Tags Property"] ?? "tags"
     result.frontFrontmatterProperty = settings.Syntax["Anki Card Front Property"] ?? "anki-front"
