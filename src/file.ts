@@ -382,9 +382,9 @@ export class AllFile extends AbstractFile {
         template.deckName = this.target_deck
         template.tags = [...(this.data.template.tags ?? [])]
 
-        const fileLinkField = this.data.file_link_fields?.[BASIC]
-        if (this.url && fileLinkField && template.fields[fileLinkField] !== undefined) {
-            this.formatter.format_note_with_url(template, this.url, this.data.file_link_fields[BASIC])
+        const backField = fieldNames[1] ?? fieldNames[0]
+        if (this.url && template.fields[backField] !== undefined) {
+            this.formatter.format_note_with_url(template, this.url, backField)
         }
         if (Object.keys(this.frozen_fields_dict).length && this.frozen_fields_dict[BASIC]) {
             this.formatter.format_note_with_frozen_fields(template, this.frozen_fields_dict)

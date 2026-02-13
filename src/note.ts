@@ -80,9 +80,10 @@ abstract class AbstractNote {
 			return {note: template, identifier: NOTE_TYPE_ERROR}
 		}
         template["fields"] = this.getFields()
-		const file_link_fields = data.file_link_fields
-        if (url) {
-            this.formatter.format_note_with_url(template, url, file_link_fields[this.note_type])
+        const fieldNames = data.fields_dict[this.note_type] ?? []
+        const backField = fieldNames[1] ?? fieldNames[0]
+        if (url && backField && template.fields[backField] !== undefined) {
+            this.formatter.format_note_with_url(template, url, backField)
         }
         if (Object.keys(frozen_fields_dict).length) {
             this.formatter.format_note_with_frozen_fields(template, frozen_fields_dict)
@@ -265,9 +266,10 @@ export class RegexNote {
 		let template = JSON.parse(JSON.stringify(data.template))
 		template["modelName"] = this.note_type
 		template["fields"] = this.getFields()
-		const file_link_fields = data.file_link_fields
-		if (url) {
-            this.formatter.format_note_with_url(template, url, file_link_fields[this.note_type])
+		const fieldNames = data.fields_dict[this.note_type] ?? []
+		const backField = fieldNames[1] ?? fieldNames[0]
+		if (url && backField && template.fields[backField] !== undefined) {
+            this.formatter.format_note_with_url(template, url, backField)
         }
         if (Object.keys(frozen_fields_dict).length) {
             this.formatter.format_note_with_frozen_fields(template, frozen_fields_dict)
