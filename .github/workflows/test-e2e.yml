@@ -185,6 +185,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PLUGIN_NAME }}
+          overwrite: true
           path: |
             ${{ env.PLUGIN_NAME }}.zip
             logs/*
@@ -197,6 +198,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PLUGIN_NAME }}-fail
+          overwrite: true
           path: |
             tests/test_config
             tests/test_vault
@@ -386,6 +388,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PLUGIN_NAME }}
+          overwrite: true
           path: |
             ${{ env.PLUGIN_NAME }}.zip
             logs/*
@@ -398,6 +401,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PLUGIN_NAME }}-fail
+          overwrite: true
           path: |
             tests/test_config
             tests/test_vault
