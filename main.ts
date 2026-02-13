@@ -19,8 +19,8 @@ export default class MyPlugin extends Plugin {
 			CUSTOM_REGEXPS: {},
 			FILE_LINK_FIELDS: {},
 			Syntax: {
-				"Begin Inline Note": "««",
-				"End Inline Note": "»»",
+				"Begin Inline Note": "|>",
+				"End Inline Note": "<|",
 				"Anki Deck Property": "deck",
 				"Anki Tags Property": "tags",
 				"Anki Card Front Property": "anki-front",
