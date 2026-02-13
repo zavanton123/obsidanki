@@ -70,6 +70,12 @@ export class SettingsTab extends PluginSettingTab {
 		if (!plugin.settings["Syntax"].hasOwnProperty("ID Delete Postfix")) {
 			plugin.settings["Syntax"]["ID Delete Postfix"] = "-delete"
 		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("Begin Inline Note")) {
+			plugin.settings["Syntax"]["Begin Inline Note"] = "««"
+		}
+		if (!plugin.settings["Syntax"].hasOwnProperty("End Inline Note")) {
+			plugin.settings["Syntax"]["End Inline Note"] = "»»"
+		}
 		let syntax_settings = containerEl.createEl('h3', {text: 'Syntax Settings'})
 		for (let key of Object.keys(plugin.settings["Syntax"])) {
 			new Setting(syntax_settings)

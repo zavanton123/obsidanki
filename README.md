@@ -60,17 +60,17 @@ Photosynthesis is the process...
 
 ### 2. Inline notes (any note type)
 
-Use the inline markers (default **STARTI** and **ENDI**; configurable in settings). Format:
+Use the inline markers (default **««** and **»»**; configurable in settings). Format:
 
-`STARTI [NoteType] FrontContent BackContent ENDI`
+`«« [NoteType] FrontContent BackContent »»`
 
 - **NoteType** must match an Anki note type (e.g. `Basic`, `Cloze`).
 - For **Cloze**, all of these work: `{{c1::cloze}}`, `{cloze}`, `==cloze==`.
 
 **Examples:**
 
-- Basic: `STARTI [Basic] Capital of France Paris ENDI`
-- Cloze: `STARTI [Cloze] The capital is {{c1::Paris}}. ENDI` or `{Paris}` or `==Paris==`
+- Basic: `«« [Basic] Capital of France Paris »»`
+- Cloze: `«« [Cloze] The capital is {{c1::Paris}}. »»` or `{Paris}` or `==Paris==`
 - Optional: add `Tags: tag1 tag2` and `ID: 123` at the end for sync/edits.
 
 ---
@@ -102,7 +102,7 @@ Property **names** can be changed in **Settings → Obsidanki → Syntax Setting
 ## Features
 
 - **One Basic card per note** when `deck` is set in frontmatter (front = note name or anki-front, back = body without frontmatter and first H1).
-- **Inline notes** for any Anki note type (Basic, Cloze, etc.) with `STARTI [Type] ... ENDI`.
+- **Inline notes** for any Anki note type (Basic, Cloze, etc.) with `«« [Type] ... »»`.
 - **Cloze support**: `{{c1::...}}`, `{...}`, `==...==` in Cloze inline notes.
 - **Deck and tags** from frontmatter; hierarchical format (slash in frontmatter → `::` in Anki).
 - **Sync and delete**: anki-id in frontmatter for updates; anki-id with delete postfix for deletion.
