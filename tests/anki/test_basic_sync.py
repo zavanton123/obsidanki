@@ -1,4 +1,5 @@
 
+import os
 import re
 import pytest
 from anki.errors import NotFoundError  # noqa
@@ -11,6 +12,8 @@ test_file_path = 'tests/test_outputs/basic_sync/Obsidian/basic_sync/basic_sync.m
 
 @pytest.fixture()
 def col():
+    if not os.path.isfile(col_path):
+        pytest.skip(f"e2e output not found: {col_path} (run test-wdio first)")
     col = Collection(col_path)
     yield col
     col.close()

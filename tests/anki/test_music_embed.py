@@ -14,6 +14,8 @@ media_file_path = 'tests/test_outputs/{}/Anki2/User 1/collection.media/test.mp3'
 
 @pytest.fixture()
 def col():
+    if not os.path.isfile(col_path):
+        pytest.skip(f"e2e output not found: {col_path} (run test-wdio first)")
     col = Collection(col_path)
     yield col
     col.close()

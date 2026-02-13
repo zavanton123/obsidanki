@@ -18,6 +18,8 @@ test_file_paths = [
 
 @pytest.fixture()
 def col():
+    if not os.path.isfile(col_path):
+        pytest.skip(f"e2e output not found: {col_path} (run test-wdio first)")
     col = Collection(col_path)
     yield col
     col.close()

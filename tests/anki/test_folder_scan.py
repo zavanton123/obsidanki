@@ -1,4 +1,5 @@
 
+import os
 import re
 import pytest
 from anki.errors import NotFoundError  # noqa
@@ -21,6 +22,8 @@ test_file_no_cards_paths = [
 
 @pytest.fixture()
 def col():
+    if not os.path.isfile(col_path):
+        pytest.skip(f"e2e output not found: {col_path} (run test-wdio first)")
     col = Collection(col_path)
     yield col
     col.close()
