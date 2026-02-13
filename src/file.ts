@@ -355,6 +355,12 @@ export class AllFile extends AbstractFile {
         return Number.isNaN(n) ? null : [n]
     }
 
+    /** True if the file content contains at least one inline note (between begin/end markers). */
+    hasInlineNotes(): boolean {
+        const inlineRe = new RegExp(this.data.INLINE_REGEXP.source, this.data.INLINE_REGEXP.flags)
+        return inlineRe.test(this.file)
+    }
+
     /** Create one Basic card from the whole file: front = anki-front or note name, back = body without frontmatter and H1. */
     scanAsBasicCard() {
         const BASIC = "Basic"
@@ -487,7 +493,17 @@ export class AllFile extends AbstractFile {
 
     scanFile() {
         this.setupScan()
-        if (this.hasAnkiFrontmatter()) {
+        if (this.hasAnkiFrontmatter() && this.hasInlineNotes()) {
+            // Deck is set and file has inline notes: create only inline notes (in the frontmatter deck), not the whole-note Basic card.
+            this.scanInlineNotes()
+            for (const note_type of Object.keys(this.custom_regexps)) {
+                const regexp_str = this.custom_regexps[note_type]
+                if (regexp_str) {
+                    this.search(note_type, regexp_str)
+                }
+            }
+        } else if (this.hasAnkiFrontmatter()) {
+            // Deck is set and no inline notes: create one Basic card from the whole note.
             this.scanAsBasicCard()
         } else {
             this.scanInlineNotes()
