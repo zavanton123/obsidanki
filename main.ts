@@ -23,9 +23,9 @@ export default class MyPlugin extends Plugin {
 				"End Inline Note": "<|",
 				"Anki Deck Property": "deck",
 				"Anki Tags Property": "tags",
-				"Anki Card Front Property": "anki-front",
+				"Anki Card Front Property": "front",
 				"Anki Card ID Property": "anki-id",
-				"ID Delete Postfix": "-delete"
+				"ID Delete Postfix": "-del"
 			},
 			Defaults: {
 				"Tag": "",
