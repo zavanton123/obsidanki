@@ -1,7 +1,7 @@
 {
   "id": "obsidanki",
   "name": "Obsidanki",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "minAppVersion": "0.0.3",
   "description": "This is an Anki integration plugin! Designed for efficient bulk exporting.",
   "author": "Anton Zaviyalov",
