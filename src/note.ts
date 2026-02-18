@@ -3,7 +3,7 @@
 Input must be the note text.
 Does NOT deal with finding the note in the file.*/
 
-import { FormatConverter } from './format'
+import { FormatConverter, wrapFrontInH1 } from './format'
 import { AnkiConnectNote, AnkiConnectNoteAndID } from './interfaces/note-interface'
 import { FIELDS_DICT, FROZEN_FIELDS_DICT } from './interfaces/field-interface'
 import { FileData } from './interfaces/settings-interface'
@@ -81,6 +81,10 @@ abstract class AbstractNote {
 		}
         template["fields"] = this.getFields()
         const fieldNames = data.fields_dict[this.note_type] ?? []
+        const frontField = fieldNames[0]
+        if (frontField && template.fields[frontField] !== undefined) {
+            template.fields[frontField] = wrapFrontInH1(template.fields[frontField])
+        }
         const backField = fieldNames[1] ?? fieldNames[0]
         if (url && backField && template.fields[backField] !== undefined) {
             this.formatter.format_note_with_url(template, url, backField)
@@ -267,6 +271,10 @@ export class RegexNote {
 		template["modelName"] = this.note_type
 		template["fields"] = this.getFields()
 		const fieldNames = data.fields_dict[this.note_type] ?? []
+		const frontField = fieldNames[0]
+		if (frontField && template.fields[frontField] !== undefined) {
+			template.fields[frontField] = wrapFrontInH1(template.fields[frontField])
+		}
 		const backField = fieldNames[1] ?? fieldNames[0]
 		if (url && backField && template.fields[backField] !== undefined) {
             this.formatter.format_note_with_url(template, url, backField)

@@ -7,7 +7,7 @@ import { Note, InlineNote, RegexNote, CLOZE_ERROR, NOTE_TYPE_ERROR, TAG_SEP, ID_
 import { Md5 } from 'ts-md5/dist/md5';
 import * as AnkiConnect from './anki'
 import * as c from './constants'
-import { FormatConverter } from './format'
+import { FormatConverter, escapeHtml } from './format'
 import { CachedMetadata } from 'obsidian'
 
 const double_regexp: RegExp = /(?:\r\n|\r|\n)((?:\r\n|\r|\n)(?:<!--)?ID: \d+)/g
@@ -384,7 +384,7 @@ export class AllFile extends AbstractFile {
         template.modelName = BASIC
         template.fields = {} as Record<string, string>
         for (let i = 0; i < fieldNames.length; i++) {
-            template.fields[fieldNames[i]] = i === 0 ? frontText : i === 1 ? backFormatted : ""
+            template.fields[fieldNames[i]] = i === 0 ? "<h1>" + escapeHtml(frontText) + "</h1>" : i === 1 ? backFormatted : ""
         }
         template.deckName = this.target_deck
         template.tags = [...(this.data.template.tags ?? [])]

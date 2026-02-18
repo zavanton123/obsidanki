@@ -32,14 +32,22 @@ let converter: Converter = new Converter({
 	extensions: [showdownHighlight]
 })
 
-function escapeHtml(unsafe: string): string {
+export function escapeHtml(unsafe: string): string {
     return unsafe
          .replace(/&/g, "&amp;")
          .replace(/</g, "&lt;")
          .replace(/>/g, "&gt;")
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
- }
+}
+
+/** Ensure front field HTML is rendered as H1: replace outer <p> with <h1> or wrap in <h1>. */
+export function wrapFrontInH1(html: string): string {
+    const trimmed = html.trim()
+    if (/^<h1[\s>]/i.test(trimmed) && trimmed.endsWith("</h1>")) return trimmed
+    if (trimmed.startsWith("<p>") && trimmed.endsWith("</p>")) return "<h1>" + trimmed.slice(3, -4) + "</h1>"
+    return "<h1>" + trimmed + "</h1>"
+}
 
 export class FormatConverter {
 
