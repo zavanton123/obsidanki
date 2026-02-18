@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- **No "false" deck**: Frontmatter `deck: false` (or other non-string values) no longer creates an empty deck named "false". The deck property is only used when it is a non-empty string; otherwise the default deck is used. Deck creation also skips invalid names (empty or `"false"`).
+- **Front as H1**: Card fronts exported to Anki are now rendered as **H1** (heading) instead of regular paragraph, for both whole-note Basic cards and inline/regex notes.
+- **Settings order**: In Syntax settings, "Begin Inline Note" and "End Inline Note" now appear at the end, after "ID Delete Postfix".
+
 ## 1.0.0
 
 - **Deck + inline notes**: When a note has **deck** in frontmatter **and** contains inline notes, only the inline notes are created (in that deck); the whole-note Basic card is not created. When deck is set but there are no inline notes, the single Basic card is created as before.
