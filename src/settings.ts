@@ -76,8 +76,18 @@ export class SettingsTab extends PluginSettingTab {
 		if (!plugin.settings["Syntax"].hasOwnProperty("End Inline Note")) {
 			plugin.settings["Syntax"]["End Inline Note"] = "»»"
 		}
+		const syntaxKeysOrder = [
+			"Anki Deck Property",
+			"Anki Tags Property",
+			"Anki Card Front Property",
+			"Anki Card ID Property",
+			"ID Delete Postfix",
+			"Begin Inline Note",
+			"End Inline Note"
+		]
 		let syntax_settings = containerEl.createEl('h3', {text: 'Syntax Settings'})
-		for (let key of Object.keys(plugin.settings["Syntax"])) {
+		for (const key of syntaxKeysOrder) {
+			if (!plugin.settings["Syntax"].hasOwnProperty(key)) continue
 			new Setting(syntax_settings)
 				.setName(key)
 				.addText(
